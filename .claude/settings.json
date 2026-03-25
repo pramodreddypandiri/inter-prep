@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(npx --version)",
+      "Bash(supabase --version)",
+      "Bash(npm view:*)",
+      "Bash(npx create-next-app@latest frontend --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm)",
+      "Bash(mkdir -p backend)",
+      "Bash(python3 -m venv venv)",
+      "Bash(source venv/bin/activate)",
+      "Bash(pip install:*)",
+      "Bash(rm -rf frontend)",
+      "Bash(npx create-next-app@latest frontend --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)",
+      "Bash(mkdir -p frontend)",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(python -c \"from app.main import app; print\\(''Backend imports OK''\\)\")",
+      "Bash(npx next:*)",
+      "Bash(python -c \"from app.main import app; print\\(''All OK''\\)\")"
+    ],
+    "additionalDirectories": [
+      "/Users/pramodreddypandiri/Desktop/Projects/inter-prep",
+      "/Users/pramodreddypandiri/Desktop/Projects/inter-prep/frontend/src/app/sessions"
+    ]
+  }
+}
