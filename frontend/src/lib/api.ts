@@ -112,4 +112,36 @@ export const api = {
 
   getMockInterview: (sessionId: string, mockId: string) =>
     fetchAPI(`/api/sessions/${sessionId}/mock-interview/${mockId}`),
+
+  // Contact
+  submitContact: async (data: {
+    user_id: string;
+    user_name: string;
+    user_email: string;
+    type: string;
+    message: string;
+    screenshot?: File;
+  }) => {
+    const formData = new FormData();
+    formData.append("user_id", data.user_id);
+    formData.append("user_name", data.user_name);
+    formData.append("user_email", data.user_email);
+    formData.append("type", data.type);
+    formData.append("message", data.message);
+    if (data.screenshot) {
+      formData.append("screenshot", data.screenshot);
+    }
+
+    const res = await fetch(`${API_URL}/api/contact`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Failed to send message" }));
+      throw new Error(error.detail || "Failed to send message");
+    }
+
+    return res.json();
+  },
 };

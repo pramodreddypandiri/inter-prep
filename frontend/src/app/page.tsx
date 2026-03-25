@@ -36,12 +36,28 @@ export default async function Home() {
         >
           Interview<span className="text-[var(--primary)]">Ace</span>
         </h2>
-        <Link
-          href="/auth/login"
-          className="text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
-        >
-          Sign In
-        </Link>
+        <div className="flex items-center gap-4">
+          <a
+            href="https://github.com/pramodreddypandiri/inter-prep"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+          >
+            GitHub
+          </a>
+          <Link
+            href="/contact"
+            className="text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+          >
+            Contact
+          </Link>
+          <Link
+            href="/auth/login"
+            className="text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+          >
+            Sign In
+          </Link>
+        </div>
       </header>
 
       {/* Hero */}

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import FRONTEND_URL
-from app.routers import sessions, prep_sources, upload, quiz, mock_interview
+from app.routers import sessions, prep_sources, upload, quiz, mock_interview, contact
 
 app = FastAPI(title="InterviewAce API", version="1.0.0")
 
@@ -20,6 +20,7 @@ app.include_router(prep_sources.router)
 app.include_router(upload.router)
 app.include_router(quiz.router)
 app.include_router(mock_interview.router)
+app.include_router(contact.router)
 
 
 @app.get("/health")
