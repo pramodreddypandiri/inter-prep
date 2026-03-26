@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SignupPage() {
@@ -11,7 +10,7 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [signupComplete, setSignupComplete] = useState(false);
   const supabase = createClient();
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -31,8 +30,8 @@ export default function SignupPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push("/dashboard");
-      router.refresh();
+      setSignupComplete(true);
+      setLoading(false);
     }
   };
 
@@ -74,87 +73,140 @@ export default function SignupPage() {
             >
               Interview<span className="text-[var(--primary)]">Ace</span>
             </Link>
-            <h1
-              className="text-3xl font-bold"
-              style={{ fontFamily: "'Playfair Display', serif" }}
-            >
-              Create your account
-            </h1>
-            <p className="mt-2 text-[var(--muted)] text-sm">
-              Start preparing for your dream role
-            </p>
+
+            {signupComplete ? (
+              <div className="space-y-6">
+                <div className="p-5 rounded-xl border border-[var(--primary)]/20 bg-[var(--primary)]/5">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-[var(--primary)]/10 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--primary)]">
+                        <rect width="20" height="16" x="2" y="4" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                      </svg>
+                    </div>
+                    <h1
+                      className="text-2xl font-bold"
+                      style={{ fontFamily: "'Playfair Display', serif" }}
+                    >
+                      Check your email
+                    </h1>
+                  </div>
+                  <p className="text-sm text-[var(--muted)] leading-relaxed">
+                    We&apos;ve sent a confirmation link to{" "}
+                    <span className="text-[var(--foreground)] font-medium">{email}</span>.
+                    Please click the link in the email to verify your account before signing in.
+                  </p>
+                </div>
+
+                <div className="space-y-3 text-sm text-[var(--muted)]">
+                  <p className="font-medium text-[var(--foreground)] text-xs uppercase tracking-wide">What to do next:</p>
+                  <ol className="list-decimal list-inside space-y-2 text-sm">
+                    <li>Open the confirmation email from InterviewAce</li>
+                    <li>Click the confirmation link to verify your account</li>
+                    <li>Return here and sign in with your credentials</li>
+                  </ol>
+                </div>
+
+                <p className="text-xs text-[var(--muted)]">
+                  Didn&apos;t receive the email? Check your spam folder or try signing up again.
+                </p>
+
+                <Link
+                  href="/auth/login"
+                  className="btn-shine w-full py-3 px-4 bg-[var(--primary)] text-white rounded-lg font-medium hover:bg-[var(--primary-hover)] transition-all shadow-lg shadow-[var(--primary-glow)] text-center block"
+                >
+                  Go to Sign In
+                </Link>
+              </div>
+            ) : (
+              <>
+                <h1
+                  className="text-3xl font-bold"
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  Create your account
+                </h1>
+                <p className="mt-2 text-[var(--muted)] text-sm">
+                  Start preparing for your dream role
+                </p>
+              </>
+            )}
           </div>
 
-          <form onSubmit={handleSignup} className="space-y-5">
-            {error && (
-              <div className="p-3 rounded-lg bg-[var(--danger)]/10 border border-[var(--danger)]/20 text-[var(--danger)] text-sm animate-fade-in-scale">
-                {error}
-              </div>
-            )}
+          {!signupComplete && (
+            <>
+              <form onSubmit={handleSignup} className="space-y-5">
+                {error && (
+                  <div className="p-3 rounded-lg bg-[var(--danger)]/10 border border-[var(--danger)]/20 text-[var(--danger)] text-sm animate-fade-in-scale">
+                    {error}
+                  </div>
+                )}
 
-            <div className="space-y-1.5">
-              <label htmlFor="name" className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
-                Full Name
-              </label>
-              <input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full px-4 py-3 rounded-lg border border-[var(--card-border)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm"
-                placeholder="Jane Doe"
-              />
-            </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="name" className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+                    Full Name
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 rounded-lg border border-[var(--card-border)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm"
+                    placeholder="Jane Doe"
+                  />
+                </div>
 
-            <div className="space-y-1.5">
-              <label htmlFor="email" className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-3 rounded-lg border border-[var(--card-border)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm"
-                placeholder="you@example.com"
-              />
-            </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="email" className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full px-4 py-3 rounded-lg border border-[var(--card-border)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm"
+                    placeholder="you@example.com"
+                  />
+                </div>
 
-            <div className="space-y-1.5">
-              <label htmlFor="password" className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-                className="w-full px-4 py-3 rounded-lg border border-[var(--card-border)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm"
-                placeholder="Min. 6 characters"
-              />
-            </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="password" className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="w-full px-4 py-3 rounded-lg border border-[var(--card-border)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm"
+                    placeholder="Min. 6 characters"
+                  />
+                </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-shine w-full py-3 px-4 bg-[var(--primary)] text-white rounded-lg font-medium hover:bg-[var(--primary-hover)] transition-all disabled:opacity-50 shadow-lg shadow-[var(--primary-glow)]"
-            >
-              {loading ? "Creating account..." : "Create Account"}
-            </button>
-          </form>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="btn-shine w-full py-3 px-4 bg-[var(--primary)] text-white rounded-lg font-medium hover:bg-[var(--primary-hover)] transition-all disabled:opacity-50 shadow-lg shadow-[var(--primary-glow)]"
+                >
+                  {loading ? "Creating account..." : "Create Account"}
+                </button>
+              </form>
 
-          <div className="divider-ornament text-xs">or</div>
+              <div className="divider-ornament text-xs">or</div>
 
-          <p className="text-center text-sm text-[var(--muted)]">
-            Already have an account?{" "}
-            <Link href="/auth/login" className="text-[var(--primary)] font-medium hover:underline underline-offset-4">
-              Sign in
-            </Link>
-          </p>
+              <p className="text-center text-sm text-[var(--muted)]">
+                Already have an account?{" "}
+                <Link href="/auth/login" className="text-[var(--primary)] font-medium hover:underline underline-offset-4">
+                  Sign in
+                </Link>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </div>
