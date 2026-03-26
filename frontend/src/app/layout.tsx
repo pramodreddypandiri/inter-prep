@@ -2,8 +2,50 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "InterviewAce - AI Interview Prep",
-  description: "AI-powered interview preparation platform",
+  title: {
+    default: "InterviewAce - AI-Powered Interview Preparation",
+    template: "%s | InterviewAce",
+  },
+  description:
+    "Prepare for interviews with AI-powered research, adaptive quizzes, and realistic mock interviews tailored to your target role.",
+  keywords: [
+    "interview preparation",
+    "AI interview prep",
+    "mock interviews",
+    "interview practice",
+    "job interview",
+    "career preparation",
+  ],
+  authors: [{ name: "InterviewAce" }],
+  creator: "InterviewAce",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://myinterviewprep.vercel.app"
+  ),
+  openGraph: {
+    title: "InterviewAce - AI-Powered Interview Preparation",
+    description:
+      "Ace your next interview with AI-powered research, adaptive quizzes, and realistic mock interviews.",
+    siteName: "InterviewAce",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "InterviewAce - AI-Powered Interview Preparation",
+    description:
+      "Ace your next interview with AI-powered research, adaptive quizzes, and realistic mock interviews.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({

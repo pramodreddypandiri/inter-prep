@@ -2,6 +2,27 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "InterviewAce",
+  description:
+    "AI-powered interview preparation platform with mock interviews, adaptive quizzes, and personalized research.",
+  applicationCategory: "EducationalApplication",
+  operatingSystem: "Web",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD",
+  },
+  featureList: [
+    "AI-powered interview research",
+    "Adaptive quizzes",
+    "Realistic mock interviews",
+    "Personalized feedback",
+  ],
+};
+
 export default async function Home() {
   const supabase = await createClient();
   const {
@@ -14,6 +35,10 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen gradient-mesh flex flex-col relative overflow-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Decorative grid */}
       <div
         className="absolute inset-0 opacity-[0.03]"
@@ -30,13 +55,15 @@ export default async function Home() {
 
       {/* Top bar */}
       <header className="relative z-10 px-8 py-6 flex items-center justify-between animate-fade-in">
-        <h2
+        <Link
+          href="/"
           className="text-xl tracking-tight"
           style={{ fontFamily: "'Playfair Display', serif" }}
+          aria-label="InterviewAce home"
         >
           Interview<span className="text-[var(--primary)]">Ace</span>
-        </h2>
-        <div className="flex items-center gap-4">
+        </Link>
+        <nav aria-label="Main navigation" className="flex items-center gap-4">
           <a
             href="https://github.com/pramodreddypandiri/inter-prep"
             target="_blank"
@@ -57,7 +84,7 @@ export default async function Home() {
           >
             Sign In
           </Link>
-        </div>
+        </nav>
       </header>
 
       {/* Hero */}
