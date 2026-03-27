@@ -1,24 +1,33 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, Depends, Request
+from pydantic import BaseModel, Field
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from app.database import get_supabase
 from app.models.schemas import PrepSourceResponse
 from app.services.ai_service import generate_prep_sources, regenerate_prep_section
+from app.auth import get_current_user
+
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(prefix="/api/sessions", tags=["prep_sources"])
 
 
-@router.post("/{session_id}/prep-sources", response_model=PrepSourceResponse)
-async def create_prep_sources(session_id: str):
+def _verify_session_owner(session_id: str, user_id: str) -> dict:
+    """Fetch session and verify the authenticated user owns it."""
     db = get_supabase()
-
-    # Get session data
-    session_result = (
-        db.table("sessions").select("*").eq("id", session_id).single().execute()
-    )
-    if not session_result.data:
+    result = db.table("sessions").select("*").eq("id", session_id).single().execute()
+    if not result.data:
         raise HTTPException(status_code=404, detail="Session not found")
+    if result.data["user_id"] != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this session")
+    return result.data
 
-    session = session_result.data
+
+@router.post("/{session_id}/prep-sources", response_model=PrepSourceResponse)
+@limiter.limit("10/hour")
+async def create_prep_sources(request: Request, session_id: str, user_id: str = Depends(get_current_user)):
+    db = get_supabase()
+    session = _verify_session_owner(session_id, user_id)
 
     # Generate prep sources using AI
     content = await generate_prep_sources(
@@ -50,7 +59,9 @@ async def create_prep_sources(session_id: str):
 
 
 @router.get("/{session_id}/prep-sources")
-async def get_prep_sources(session_id: str):
+async def get_prep_sources(session_id: str, user_id: str = Depends(get_current_user)):
+    _verify_session_owner(session_id, user_id)
+
     db = get_supabase()
     result = (
         db.table("prep_sources")
@@ -67,20 +78,21 @@ async def get_prep_sources(session_id: str):
     return result.data[0]
 
 
+VALID_SECTIONS = {"company_snapshot", "interview_process", "technical_topics", "preparation_checklist", "resource_links"}
+
+
 class RegenerateSectionRequest(BaseModel):
-    section: str  # e.g. "company_snapshot", "technical_topics"
+    section: str = Field(..., max_length=50)  # e.g. "company_snapshot", "technical_topics"
 
 
 @router.post("/{session_id}/prep-sources/section")
-async def regenerate_section(session_id: str, body: RegenerateSectionRequest):
-    db = get_supabase()
+@limiter.limit("20/hour")
+async def regenerate_section(request: Request, session_id: str, body: RegenerateSectionRequest, user_id: str = Depends(get_current_user)):
+    if body.section not in VALID_SECTIONS:
+        raise HTTPException(status_code=400, detail=f"Invalid section. Must be one of: {', '.join(VALID_SECTIONS)}")
 
-    # Get session
-    session_result = (
-        db.table("sessions").select("*").eq("id", session_id).single().execute()
-    )
-    if not session_result.data:
-        raise HTTPException(status_code=404, detail="Session not found")
+    db = get_supabase()
+    session = _verify_session_owner(session_id, user_id)
 
     # Get existing prep sources
     prep_result = (
@@ -95,7 +107,6 @@ async def regenerate_section(session_id: str, body: RegenerateSectionRequest):
         raise HTTPException(status_code=404, detail="Prep sources not found. Generate full prep sources first.")
 
     existing = prep_result.data[0]
-    session = session_result.data
 
     # Regenerate just this section
     new_content = await regenerate_prep_section(

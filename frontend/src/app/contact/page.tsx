@@ -62,7 +62,6 @@ export default function ContactPage() {
 
     try {
       await api.submitContact({
-        user_id: user.id,
         user_name: user.name,
         user_email: user.email,
         type,

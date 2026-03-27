@@ -1,9 +1,6 @@
 import json
-import anthropic
-from app.config import ANTHROPIC_API_KEY
-from app.services.json_utils import extract_json
 
-client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+from app.services.ai_service import _call_claude_json, _cap
 
 
 async def generate_quiz_questions(
@@ -21,12 +18,12 @@ async def generate_quiz_questions(
         topics_source = topics
     else:
         # Extract topics from JD and round description
-        topics_source = f"Topics extracted from JD: {jd_text[:300]}\nRound: {round_description}"
+        topics_source = f"Topics extracted from JD: {_cap(jd_text, 300)}\nRound: {_cap(round_description, 300)}"
 
     prompt = f"""You are a technical interviewer generating short, focused quiz questions to test a candidate's understanding of core concepts.
 
 ## Topics to quiz on:
-{topics_source}
+{_cap(topics_source, 2000)}
 
 Generate exactly {num_questions} short, direct technical questions. Follow these rules strictly:
 
@@ -48,13 +45,7 @@ Each question object must have: "id" (integer starting at 1), "question" (the qu
 
 Respond with a JSON array of {num_questions} question objects. Return ONLY valid JSON."""
 
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=4096,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    return extract_json(message.content[0].text)
+    return _call_claude_json(max_tokens=4096, messages=[{"role": "user", "content": prompt}])
 
 
 async def evaluate_quiz_answers(
@@ -98,10 +89,4 @@ Respond in this exact JSON format:
 
 Return ONLY valid JSON."""
 
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=4096,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    return extract_json(message.content[0].text)
+    return _call_claude_json(max_tokens=4096, messages=[{"role": "user", "content": prompt}])

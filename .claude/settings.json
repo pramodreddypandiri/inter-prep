@@ -19,7 +19,10 @@
       "Bash(npx next:*)",
       "Bash(python -c \"from app.main import app; print\\(''All OK''\\)\")",
       "Bash(node -e \"const l = require\\(''lucide-react''\\); console.log\\(Object.keys\\(l\\).filter\\(k => k.toLowerCase\\(\\).includes\\(''github''\\)\\).join\\('', ''\\)\\)\")",
-      "Bash(node -e \"const l = require\\(''lucide-react''\\); console.log\\(Object.keys\\(l\\).filter\\(k => k.toLowerCase\\(\\).includes\\(''git''\\)\\).join\\('', ''\\)\\)\")"
+      "Bash(node -e \"const l = require\\(''lucide-react''\\); console.log\\(Object.keys\\(l\\).filter\\(k => k.toLowerCase\\(\\).includes\\(''git''\\)\\).join\\('', ''\\)\\)\")",
+      "Bash(find /Users/pramodreddypandiri/Desktop/Projects/inter-prep/backend -type f -name *.py -not -path */venv/* -not -path */__pycache__/*)",
+      "Bash(python -c \":*)",
+      "Bash(venv/bin/pip install:*)"
     ],
     "additionalDirectories": [
       "/Users/pramodreddypandiri/Desktop/Projects/inter-prep",
