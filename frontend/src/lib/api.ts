@@ -1,12 +1,47 @@
+import { createClient } from "@/lib/supabase/client";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const supabase = createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session?.access_token) {
+    throw new Error("Not authenticated");
+  }
+
+  return { Authorization: `Bearer ${session.access_token}` };
+}
+
 async function fetchAPI(path: string, options: RequestInit = {}) {
+  const authHeaders = await getAuthHeaders();
+
   const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      ...authHeaders,
       ...options.headers,
     },
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ detail: "Request failed" }));
+    throw new Error(error.detail || "Request failed");
+  }
+
+  return res.json();
+}
+
+async function fetchFormData(path: string, formData: FormData) {
+  const authHeaders = await getAuthHeaders();
+
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    headers: authHeaders,
+    body: formData,
   });
 
   if (!res.ok) {
@@ -25,11 +60,9 @@ export const api = {
     jd_text: string;
     resume_text: string;
     round_description: string;
-    user_id: string;
   }) => fetchAPI("/api/sessions", { method: "POST", body: JSON.stringify(data) }),
 
-  getSessions: (userId: string) =>
-    fetchAPI(`/api/sessions?user_id=${userId}`),
+  getSessions: () => fetchAPI("/api/sessions"),
 
   getSession: (sessionId: string) =>
     fetchAPI(`/api/sessions/${sessionId}`),
@@ -51,22 +84,10 @@ export const api = {
     }),
 
   // Resume upload
-  uploadResume: async (file: File, userId: string) => {
+  uploadResume: async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("user_id", userId);
-
-    const res = await fetch(`${API_URL}/api/upload-resume`, {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const error = await res.json().catch(() => ({ detail: "Upload failed" }));
-      throw new Error(error.detail || "Upload failed");
-    }
-
-    return res.json();
+    return fetchFormData("/api/upload-resume", formData);
   },
 
   // Quiz Sessions
@@ -115,7 +136,6 @@ export const api = {
 
   // Contact
   submitContact: async (data: {
-    user_id: string;
     user_name: string;
     user_email: string;
     type: string;
@@ -123,7 +143,6 @@ export const api = {
     screenshot?: File;
   }) => {
     const formData = new FormData();
-    formData.append("user_id", data.user_id);
     formData.append("user_name", data.user_name);
     formData.append("user_email", data.user_email);
     formData.append("type", data.type);
@@ -131,17 +150,6 @@ export const api = {
     if (data.screenshot) {
       formData.append("screenshot", data.screenshot);
     }
-
-    const res = await fetch(`${API_URL}/api/contact`, {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const error = await res.json().catch(() => ({ detail: "Failed to send message" }));
-      throw new Error(error.detail || "Failed to send message");
-    }
-
-    return res.json();
+    return fetchFormData("/api/contact", formData);
   },
 };

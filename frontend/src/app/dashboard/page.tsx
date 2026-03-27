@@ -21,7 +21,7 @@ export default function DashboardPage() {
       if (!user) return;
 
       try {
-        const data = await api.getSessions(user.id);
+        const data = await api.getSessions();
         setSessions(data);
       } catch (err) {
         console.error("Failed to load sessions:", err);

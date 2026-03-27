@@ -5,6 +5,8 @@ import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import InterviewerAvatar from "@/components/mock/InterviewerAvatar";
 import EyeTracker, { EyeTrackerRef } from "@/components/video/EyeTracker";
+import { TimingAnalyzer } from "@/lib/detection/timing-analyzer";
+import type { GazeSignal, AudioSignal, RiskSnapshot } from "@/lib/detection/types";
 import {
   Loader2,
   Send,
@@ -22,6 +24,11 @@ import {
   TrendingUp,
   AlertTriangle,
   CheckCircle2,
+  ShieldAlert,
+  Activity,
+  Keyboard,
+  Users,
+  Monitor,
 } from "lucide-react";
 
 interface TranscriptEntry {
@@ -51,6 +58,237 @@ type InterviewState =
   | "processing"
   | "complete";
 
+// ─── Risk Score Indicator Component ───
+
+function RiskIndicator({ score, flags }: { score: number; flags: string[] }) {
+  const color =
+    score < 25
+      ? "text-green-400"
+      : score < 50
+      ? "text-yellow-400"
+      : score < 75
+      ? "text-orange-400"
+      : "text-red-400";
+  const bgColor =
+    score < 25
+      ? "bg-green-400"
+      : score < 50
+      ? "bg-yellow-400"
+      : score < 75
+      ? "bg-orange-400"
+      : "bg-red-400";
+  const label =
+    score < 25
+      ? "Low"
+      : score < 50
+      ? "Moderate"
+      : score < 75
+      ? "High"
+      : "Critical";
+
+  return (
+    <div className="relative group">
+      <div
+        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 border border-white/10 cursor-default`}
+      >
+        <ShieldAlert size={12} className={color} />
+        <span className={`text-[10px] font-mono font-bold ${color}`}>
+          {score}
+        </span>
+        <span className="text-[9px] text-white/40">{label}</span>
+      </div>
+
+      {/* Tooltip with flag details */}
+      {flags.length > 0 && (
+        <div className="absolute bottom-full right-0 mb-2 w-56 bg-[#1a1c24] border border-white/10 rounded-xl p-3 hidden group-hover:block z-50 shadow-xl">
+          <p className="text-[10px] font-semibold text-white/60 mb-2 uppercase tracking-wider">
+            Active Flags
+          </p>
+          <div className="space-y-1.5">
+            {flags.map((flag, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-1.5 text-[10px] text-white/50"
+              >
+                <AlertTriangle
+                  size={9}
+                  className={`${color} mt-0.5 shrink-0`}
+                />
+                {flag}
+              </div>
+            ))}
+          </div>
+          {/* Score bar */}
+          <div className="mt-2.5 h-1 bg-white/5 rounded-full overflow-hidden">
+            <div
+              className={`h-full ${bgColor} rounded-full transition-all duration-500`}
+              style={{ width: `${score}%` }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Integrity Report Section for Feedback Page ───
+
+function IntegrityReport({
+  stats,
+}: {
+  stats: {
+    totalLookAways: number;
+    readingPatterns: number;
+    tabSwitchCount: number;
+    typingDetections: number;
+    secondSpeakerDetections: number;
+    currentRiskScore: number;
+    riskTimeline: RiskSnapshot[];
+  };
+}) {
+  const score = stats.currentRiskScore;
+  const maxScore = Math.max(...stats.riskTimeline.map((s) => s.score), score);
+
+  return (
+    <div className="border border-[var(--card-border)] bg-[var(--card)] rounded-2xl p-6 space-y-5">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-[var(--primary-glow)] flex items-center justify-center">
+          <ShieldAlert size={20} className="text-[var(--primary)]" />
+        </div>
+        <div>
+          <h2
+            className="font-semibold text-lg"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            Integrity Analysis
+          </h2>
+          <p className="text-xs text-[var(--muted)]">
+            Cheating detection signals recorded during the interview
+          </p>
+        </div>
+      </div>
+
+      {/* Overall score */}
+      <div className="flex items-center gap-4">
+        <div
+          className={`text-3xl font-bold font-mono ${
+            score < 25
+              ? "text-green-400"
+              : score < 50
+              ? "text-yellow-400"
+              : score < 75
+              ? "text-orange-400"
+              : "text-red-400"
+          }`}
+        >
+          {score}
+        </div>
+        <div>
+          <p className="text-sm font-medium">
+            Final Risk Score{" "}
+            <span className="text-[var(--muted)] font-normal">/ 100</span>
+          </p>
+          <p className="text-xs text-[var(--muted)]">
+            Peak: {maxScore} &middot; Samples: {stats.riskTimeline.length}
+          </p>
+        </div>
+      </div>
+
+      {/* Metrics grid */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {[
+          {
+            icon: Eye,
+            label: "Look-aways",
+            value: stats.totalLookAways,
+            danger: stats.totalLookAways > 5,
+          },
+          {
+            icon: Activity,
+            label: "Reading Patterns",
+            value: stats.readingPatterns,
+            danger: stats.readingPatterns > 2,
+          },
+          {
+            icon: Monitor,
+            label: "Tab Switches",
+            value: stats.tabSwitchCount,
+            danger: stats.tabSwitchCount > 0,
+          },
+          {
+            icon: Keyboard,
+            label: "Typing Detected",
+            value: stats.typingDetections,
+            danger: stats.typingDetections > 0,
+          },
+          {
+            icon: Users,
+            label: "2nd Speaker",
+            value: stats.secondSpeakerDetections,
+            danger: stats.secondSpeakerDetections > 0,
+          },
+        ].map((metric) => (
+          <div
+            key={metric.label}
+            className={`rounded-xl p-3 border ${
+              metric.danger
+                ? "border-[var(--danger)]/30 bg-[var(--danger)]/5"
+                : "border-[var(--card-border)] bg-[var(--surface)]"
+            }`}
+          >
+            <metric.icon
+              size={14}
+              className={
+                metric.danger ? "text-[var(--danger)]" : "text-[var(--muted)]"
+              }
+            />
+            <p
+              className={`text-xl font-bold mt-1 ${
+                metric.danger ? "text-[var(--danger)]" : ""
+              }`}
+            >
+              {metric.value}
+            </p>
+            <p className="text-[10px] text-[var(--muted)]">{metric.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Risk timeline mini-chart */}
+      {stats.riskTimeline.length > 1 && (
+        <div>
+          <p className="text-xs text-[var(--muted)] mb-2">
+            Risk Score Over Time
+          </p>
+          <div className="flex items-end gap-px h-16">
+            {stats.riskTimeline.map((snap, i) => (
+              <div
+                key={i}
+                className="flex-1 rounded-t-sm transition-all"
+                style={{
+                  height: `${Math.max(2, snap.score)}%`,
+                  backgroundColor:
+                    snap.score < 25
+                      ? "#4ade80"
+                      : snap.score < 50
+                      ? "#facc15"
+                      : snap.score < 75
+                      ? "#fb923c"
+                      : "#f87171",
+                  opacity: 0.7,
+                }}
+                title={`Score: ${snap.score} at ${new Date(snap.timestamp).toLocaleTimeString()}`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Page Component ───
+
 export default function MockInterviewPage() {
   const params = useParams();
   const router = useRouter();
@@ -74,7 +312,21 @@ export default function MockInterviewPage() {
   const [showChat, setShowChat] = useState(false);
   const [showCaptions, setShowCaptions] = useState(true);
 
+  // Detection state
+  const [riskScore, setRiskScore] = useState(0);
+  const [riskFlags, setRiskFlags] = useState<string[]>([]);
+  const [integrityStats, setIntegrityStats] = useState<{
+    totalLookAways: number;
+    readingPatterns: number;
+    tabSwitchCount: number;
+    typingDetections: number;
+    secondSpeakerDetections: number;
+    currentRiskScore: number;
+    riskTimeline: RiskSnapshot[];
+  } | null>(null);
+
   const eyeTrackerRef = useRef<EyeTrackerRef>(null);
+  const timingAnalyzerRef = useRef<TimingAnalyzer>(new TimingAnalyzer());
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const isRecordingRef = useRef(false);
   const liveTranscriptRef = useRef("");
@@ -82,6 +334,19 @@ export default function MockInterviewPage() {
   const [micPermission, setMicPermission] = useState<
     "pending" | "granted" | "denied"
   >("pending");
+
+  // Set up timing analyzer signal handler
+  useEffect(() => {
+    const ta = timingAnalyzerRef.current;
+    ta.setOnSignal((signal) => {
+      // The risk engine in EyeTracker handles this, but we also
+      // need to update it directly for timing signals
+      const stats = eyeTrackerRef.current?.getStats();
+      if (stats) {
+        setRiskScore(stats.currentRiskScore);
+      }
+    });
+  }, []);
 
   // Load interview data
   useEffect(() => {
@@ -158,6 +423,27 @@ export default function MockInterviewPage() {
     };
   }, []);
 
+  // Gaze signal callback
+  const handleGazeSignal = useCallback((signal: GazeSignal) => {
+    // Signal is already processed by EyeTracker → RiskEngine
+  }, []);
+
+  // Audio signal callback
+  const handleAudioSignal = useCallback((signal: AudioSignal) => {
+    // Signal is already processed by EyeTracker → RiskEngine
+  }, []);
+
+  // Risk score update callback
+  const handleRiskUpdate = useCallback((score: number) => {
+    setRiskScore(score);
+    const stats = eyeTrackerRef.current?.getStats();
+    if (stats) {
+      const timeline = stats.riskTimeline;
+      const latestSnap = timeline[timeline.length - 1];
+      setRiskFlags(latestSnap?.flags || []);
+    }
+  }, []);
+
   const getRecognition = useCallback(() => {
     if (recognitionRef.current) return recognitionRef.current;
 
@@ -170,6 +456,7 @@ export default function MockInterviewPage() {
     recognition.lang = "en-US";
 
     let finalTranscript = "";
+    let firstWordDetected = false;
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interim = "";
@@ -183,6 +470,12 @@ export default function MockInterviewPage() {
       const combined = finalTranscript + interim;
       liveTranscriptRef.current = combined;
       setLiveTranscript(combined);
+
+      // Mark response start for timing analysis on first word
+      if (!firstWordDetected && combined.trim().length > 0) {
+        firstWordDetected = true;
+        timingAnalyzerRef.current.markResponseStart();
+      }
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
@@ -207,6 +500,7 @@ export default function MockInterviewPage() {
         }
       } else {
         finalTranscript = "";
+        firstWordDetected = false;
       }
     };
 
@@ -248,6 +542,9 @@ export default function MockInterviewPage() {
     const message = liveTranscriptRef.current.trim();
     if (!message) return;
 
+    // Analyze timing for this response
+    timingAnalyzerRef.current.analyzeResponse(message);
+
     liveTranscriptRef.current = "";
     setLiveTranscript("");
     setInterviewState("processing");
@@ -281,6 +578,11 @@ export default function MockInterviewPage() {
   const handleTextSend = async () => {
     const message = textFallback.trim();
     if (!message) return;
+
+    // Analyze timing for text response too
+    timingAnalyzerRef.current.markResponseStart();
+    timingAnalyzerRef.current.analyzeResponse(message);
+
     setTextFallback("");
     setInterviewState("processing");
 
@@ -312,6 +614,8 @@ export default function MockInterviewPage() {
 
   const handleSpeechEnd = useCallback(() => {
     setInterviewState("candidate_turn");
+    // Mark that a question was just asked (for timing analysis)
+    timingAnalyzerRef.current.markQuestionAsked(false);
   }, []);
 
   const toggleMute = useCallback(() => {
@@ -328,9 +632,34 @@ export default function MockInterviewPage() {
   const handleEndInterview = async () => {
     if (!confirm("Leave the interview? Feedback will be generated.")) return;
     setInterviewState("processing");
-    const eyeStats = eyeTrackerRef.current?.getStats();
+
+    // Collect all integrity stats
+    const stats = eyeTrackerRef.current?.getStats();
+    setIntegrityStats(stats ? {
+      totalLookAways: stats.totalLookAways,
+      readingPatterns: stats.readingPatterns,
+      tabSwitchCount: stats.tabSwitchCount,
+      typingDetections: stats.typingDetections,
+      secondSpeakerDetections: stats.secondSpeakerDetections,
+      currentRiskScore: stats.currentRiskScore,
+      riskTimeline: stats.riskTimeline,
+    } : null);
+
+    // Send legacy-compatible eye tracking data to backend
+    const eyeTrackingPayload = stats
+      ? {
+          totalLookAways: stats.totalLookAways,
+          readingPatterns: stats.readingPatterns,
+          suspiciousEvents: stats.suspiciousEvents,
+        }
+      : undefined;
+
     try {
-      const result = await api.endMockInterview(sessionId, mockId, eyeStats);
+      const result = await api.endMockInterview(
+        sessionId,
+        mockId,
+        eyeTrackingPayload
+      );
       setTranscript(result.transcript);
       setFeedback(result.feedback_report);
       setInterviewState("complete");
@@ -439,8 +768,15 @@ export default function MockInterviewPage() {
             ))}
           </div>
 
-          {/* Eye Tracking */}
-          {feedback.eye_tracking_notes && (
+          {/* Integrity Analysis (new) */}
+          {integrityStats && (
+            <div className="animate-fade-in-up delay-3">
+              <IntegrityReport stats={integrityStats} />
+            </div>
+          )}
+
+          {/* Legacy Eye Tracking Notes */}
+          {feedback.eye_tracking_notes && !integrityStats && (
             <div className="border border-[var(--primary)]/20 bg-[var(--primary-glow)] rounded-2xl p-5 animate-fade-in-up delay-3">
               <h3
                 className="font-semibold mb-2 flex items-center gap-2"
@@ -603,7 +939,13 @@ export default function MockInterviewPage() {
           {/* Candidate tile */}
           <div className="flex-1 bg-[#1a1c24] rounded-2xl relative overflow-hidden">
             <div className="absolute inset-0">
-              <EyeTracker ref={eyeTrackerRef} autoStart={true} />
+              <EyeTracker
+                ref={eyeTrackerRef}
+                autoStart={true}
+                onGazeSignal={handleGazeSignal}
+                onAudioSignal={handleAudioSignal}
+                onRiskUpdate={handleRiskUpdate}
+              />
             </div>
 
             {/* Speaking indicator border */}
@@ -618,6 +960,11 @@ export default function MockInterviewPage() {
                 <span className="w-1.5 h-1.5 bg-[#56d364] rounded-full animate-pulse" />
               )}
               {isMuted && <MicOff size={10} className="text-red-400" />}
+            </div>
+
+            {/* Risk score badge */}
+            <div className="absolute top-3 right-3 z-10">
+              <RiskIndicator score={riskScore} flags={riskFlags} />
             </div>
 
             {/* Live caption */}

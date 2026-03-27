@@ -1,9 +1,6 @@
 import json
-import anthropic
-from app.config import ANTHROPIC_API_KEY
-from app.services.json_utils import extract_json
 
-client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+from app.services.ai_service import _call_claude, _call_claude_json, _cap
 
 INTERVIEWER_SYSTEM_PROMPT = """You are a professional interviewer conducting a real interview. Follow these rules strictly:
 
@@ -34,30 +31,27 @@ async def generate_first_question(
     prompt = f"""You are about to start a mock interview. Here is the context:
 
 ## Candidate's Resume:
-{resume_text}
+{_cap(resume_text)}
 
 ## Job Description:
-{jd_text}
+{_cap(jd_text)}
 
-## Company: {company_name}
-## Round Description: {round_description}
-## Focus Topics: {topics}
+## Company: {_cap(company_name, 500)}
+## Round Description: {_cap(round_description, 5000)}
+## Focus Topics: {_cap(topics, 2000)}
 ## Duration: {duration} minutes
 ## Difficulty: {difficulty}
 
 ## Preparation Context:
-{json.dumps(prep_sources) if prep_sources else "No prep sources available."}
+{json.dumps(prep_sources)[:5000] if prep_sources else "No prep sources available."}
 
 Start the interview. Briefly introduce yourself as the interviewer, mention the format, and ask your first question. Keep the introduction concise (2-3 sentences max before the question)."""
 
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
+    return _call_claude(
         max_tokens=1024,
         system=INTERVIEWER_SYSTEM_PROMPT,
         messages=[{"role": "user", "content": prompt}],
     )
-
-    return message.content[0].text
 
 
 async def generate_interviewer_response(
@@ -83,23 +77,21 @@ async def generate_interviewer_response(
     should_wrap_up = time_remaining <= 3
 
     context_note = f"""[CONTEXT FOR INTERVIEWER - NOT TO BE SPOKEN:
-- Resume summary: {resume_text[:300]}
-- JD summary: {jd_text[:300]}
-- Topics to cover: {topics}
+- Resume summary: {_cap(resume_text, 300)}
+- JD summary: {_cap(jd_text, 300)}
+- Topics to cover: {_cap(topics, 500)}
 - Difficulty: {difficulty}
 - Time remaining: {time_remaining:.0f} minutes out of {duration}
 - {"WRAP UP the interview now — thank the candidate and end." if should_wrap_up else "Continue with the next question or follow-up."}]"""
 
     messages.append({"role": "user", "content": context_note})
 
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
+    response_text = _call_claude(
         max_tokens=1024,
         system=INTERVIEWER_SYSTEM_PROMPT,
         messages=messages,
     )
 
-    response_text = message.content[0].text
     is_complete = should_wrap_up or any(
         phrase in response_text.lower()
         for phrase in ["thank you for your time", "that concludes", "end of the interview", "wraps up our interview"]
@@ -135,9 +127,9 @@ If the numbers are 0 or very low, note positively that the candidate maintained 
 {json.dumps(transcript)}
 
 ## Context:
-- Resume: {resume_text[:500]}
-- JD: {jd_text[:500]}
-- Topics covered: {topics}
+- Resume: {_cap(resume_text, 500)}
+- JD: {_cap(jd_text, 500)}
+- Topics covered: {_cap(topics, 500)}
 - Difficulty level: {difficulty}
 {eye_tracking_section}
 
@@ -160,10 +152,4 @@ Analyze the candidate's performance and provide feedback in this exact JSON form
 
 Return ONLY valid JSON."""
 
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=4096,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    return extract_json(message.content[0].text)
+    return _call_claude_json(max_tokens=4096, messages=[{"role": "user", "content": prompt}])

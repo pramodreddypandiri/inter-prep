@@ -32,7 +32,7 @@ export default function NewSessionPage() {
       let resumeText = "";
 
       if (resumeFile) {
-        const result = await api.uploadResume(resumeFile, user.id);
+        const result = await api.uploadResume(resumeFile);
         resumeText = result.text;
       }
 
@@ -42,7 +42,6 @@ export default function NewSessionPage() {
         jd_text: jdText,
         resume_text: resumeText,
         round_description: roundDescription,
-        user_id: user.id,
       });
 
       router.push(`/sessions/${session.id}`);

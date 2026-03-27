@@ -1,15 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
-from datetime import datetime
 
 
 class SessionCreate(BaseModel):
-    name: str
-    company_name: str
-    jd_text: str
-    resume_text: str
-    round_description: str
-    user_id: str
+    name: str = Field(..., max_length=200)
+    company_name: str = Field(..., max_length=200)
+    jd_text: str = Field(..., max_length=50_000)
+    resume_text: str = Field(..., max_length=50_000)
+    round_description: str = Field(..., max_length=5_000)
 
 
 class SessionResponse(BaseModel):

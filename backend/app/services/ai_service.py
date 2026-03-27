@@ -1,8 +1,78 @@
+from __future__ import annotations
+
+import base64
+import logging
+
 import anthropic
+from fastapi import HTTPException
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+
 from app.config import ANTHROPIC_API_KEY
 from app.services.json_utils import extract_json
 
-client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+logger = logging.getLogger(__name__)
+
+client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY, timeout=120.0)
+
+MAX_TEXT_CHARS = 30_000  # Safety cap for text sent to Claude prompts
+
+
+def _cap(text: str, limit: int = MAX_TEXT_CHARS) -> str:
+    return text[:limit] if len(text) > limit else text
+
+
+# Retry on transient errors (rate limit, server errors) — not on bad requests
+_retry_decorator = retry(
+    retry=retry_if_exception_type((anthropic.RateLimitError, anthropic.APIConnectionError, anthropic.InternalServerError)),
+    wait=wait_exponential(multiplier=1, min=2, max=30),
+    stop=stop_after_attempt(3),
+    reraise=True,
+)
+
+
+def _call_claude(*, model: str = "claude-sonnet-4-20250514", max_tokens: int = 4096, messages: list, system: str | None = None):
+    """Central wrapper for all Claude API calls with retry and error handling."""
+    kwargs = {"model": model, "max_tokens": max_tokens, "messages": messages}
+    if system:
+        kwargs["system"] = system
+
+    try:
+        message = _retry_decorator(client.messages.create)(**kwargs)
+        return message.content[0].text
+    except anthropic.RateLimitError:
+        logger.error("Claude API rate limit exceeded after retries")
+        raise HTTPException(status_code=429, detail="AI service is temporarily overloaded. Please try again in a few minutes.")
+    except anthropic.APIConnectionError:
+        logger.error("Failed to connect to Claude API")
+        raise HTTPException(status_code=502, detail="Unable to reach AI service. Please try again shortly.")
+    except anthropic.InternalServerError:
+        logger.error("Claude API internal server error")
+        raise HTTPException(status_code=502, detail="AI service encountered an error. Please try again.")
+    except anthropic.BadRequestError as e:
+        logger.error(f"Claude API bad request: {e}")
+        raise HTTPException(status_code=400, detail="The request could not be processed. Input may be too large or invalid.")
+    except Exception as e:
+        logger.error(f"Unexpected Claude API error: {e}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred while generating content.")
+
+
+def _call_claude_json(*, model: str = "claude-sonnet-4-20250514", max_tokens: int = 4096, messages: list, system: str | None = None):
+    """Call Claude and parse JSON from response, with structured error on parse failure."""
+    text = _call_claude(model=model, max_tokens=max_tokens, messages=messages, system=system)
+    try:
+        return extract_json(text)
+    except ValueError:
+        logger.error(f"Failed to parse JSON from Claude response: {text[:200]}")
+        raise HTTPException(status_code=502, detail="AI returned an invalid response. Please try again.")
+
+
+SECTION_DESCRIPTIONS = {
+    "company_snapshot": "Culture, values, recent news, team context, and what makes this company unique. Include any known engineering culture aspects.",
+    "interview_process": "Known interview rounds, common question themes for this role/company, what to expect in each round, and tips from common patterns.",
+    "technical_topics": "Key technical skills from the JD mapped to specific study areas. For each topic, explain what depth of knowledge is expected and how it relates to the candidate's background.",
+    "preparation_checklist": "A step-by-step action plan the candidate should follow before the interview. Be specific and actionable.",
+    "resource_links": "Curated list of documentation, courses, papers, books, and practice resources relevant to the topics identified. Every resource MUST include an actual URL as a markdown hyperlink in the format [Resource Name](https://actual-url). Group by category.",
+}
 
 
 async def generate_prep_sources(
@@ -16,16 +86,16 @@ async def generate_prep_sources(
     prompt = f"""You are an expert interview preparation coach. Based on the following information about a candidate and their target role, generate a comprehensive preparation guide.
 
 ## Candidate's Resume:
-{resume_text}
+{_cap(resume_text)}
 
 ## Job Description:
-{jd_text}
+{_cap(jd_text)}
 
 ## Target Company:
-{company_name}
+{_cap(company_name, 500)}
 
 ## Interview Round Description:
-{round_description}
+{_cap(round_description, 5000)}
 
 Generate a structured preparation guide with the following sections. Use markdown formatting within each section for readability.
 
@@ -40,23 +110,7 @@ Respond in the following JSON format exactly:
 
 Important: Return ONLY valid JSON. No markdown code fences. Each value should be a markdown-formatted string. For the resource_links section, every single resource MUST include an actual URL as a markdown link — do not just list names without URLs."""
 
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=4096,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    response_text = message.content[0].text
-    return extract_json(response_text)
-
-
-SECTION_DESCRIPTIONS = {
-    "company_snapshot": "Culture, values, recent news, team context, and what makes this company unique. Include any known engineering culture aspects.",
-    "interview_process": "Known interview rounds, common question themes for this role/company, what to expect in each round, and tips from common patterns.",
-    "technical_topics": "Key technical skills from the JD mapped to specific study areas. For each topic, explain what depth of knowledge is expected and how it relates to the candidate's background.",
-    "preparation_checklist": "A step-by-step action plan the candidate should follow before the interview. Be specific and actionable.",
-    "resource_links": "Curated list of documentation, courses, papers, books, and practice resources relevant to the topics identified. Every resource MUST include an actual URL as a markdown hyperlink in the format [Resource Name](https://actual-url). Group by category.",
-}
+    return _call_claude_json(max_tokens=4096, messages=[{"role": "user", "content": prompt}])
 
 
 async def regenerate_prep_section(
@@ -74,16 +128,16 @@ async def regenerate_prep_section(
     prompt = f"""You are an expert interview preparation coach. Regenerate ONLY the "{section_label}" section of an interview preparation guide.
 
 ## Candidate's Resume:
-{resume_text}
+{_cap(resume_text)}
 
 ## Job Description:
-{jd_text}
+{_cap(jd_text)}
 
 ## Target Company:
-{company_name}
+{_cap(company_name, 500)}
 
 ## Interview Round Description:
-{round_description}
+{_cap(round_description, 5000)}
 
 Generate content for: **{section_label}**
 Description: {section_desc}
@@ -94,13 +148,7 @@ If this is the Resource Links section: every single resource MUST include an act
 
 Return ONLY the markdown content for this section. No JSON wrapping, no code fences — just the raw markdown text."""
 
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=2048,
-        messages=[{"role": "user", "content": prompt}],
-    )
-
-    return message.content[0].text
+    return _call_claude(max_tokens=2048, messages=[{"role": "user", "content": prompt}])
 
 
 async def parse_resume_text(file_content: bytes, filename: str) -> str:
@@ -111,8 +159,6 @@ async def parse_resume_text(file_content: bytes, filename: str) -> str:
         return file_content.decode("utf-8", errors="ignore")
 
     # For PDF and other documents, use Claude's vision capability
-    import base64
-
     media_type = "application/pdf"
     if filename.endswith((".png", ".jpg", ".jpeg")):
         ext = filename.rsplit(".", 1)[-1].lower()
@@ -122,8 +168,7 @@ async def parse_resume_text(file_content: bytes, filename: str) -> str:
 
     encoded = base64.b64encode(file_content).decode("utf-8")
 
-    message = client.messages.create(
-        model="claude-sonnet-4-20250514",
+    return _call_claude(
         max_tokens=4096,
         messages=[
             {
@@ -145,5 +190,3 @@ async def parse_resume_text(file_content: bytes, filename: str) -> str:
             }
         ],
     )
-
-    return message.content[0].text

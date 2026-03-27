@@ -1,20 +1,35 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
+from fastapi import APIRouter, HTTPException, Depends, Request
+from pydantic import BaseModel, Field
+from typing import List
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from app.database import get_supabase
 from app.services.quiz_service import generate_quiz_questions, evaluate_quiz_answers
+from app.auth import get_current_user
+
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(prefix="/api/sessions", tags=["quiz"])
 
 
+def _verify_session_owner(session_id: str, user_id: str) -> dict:
+    db = get_supabase()
+    result = db.table("sessions").select("*").eq("id", session_id).single().execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if result.data["user_id"] != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to access this session")
+    return result.data
+
+
 class QuizCreate(BaseModel):
-    topics: str = ""
-    num_questions: int = 10
+    topics: str = Field(default="", max_length=2_000)
+    num_questions: int = Field(default=10, ge=1, le=30)
 
 
 class QuizAnswer(BaseModel):
     question_id: int
-    answer: str
+    answer: str = Field(..., max_length=10_000)
 
 
 class QuizSubmit(BaseModel):
@@ -22,15 +37,10 @@ class QuizSubmit(BaseModel):
 
 
 @router.post("/{session_id}/quiz")
-async def create_quiz_session(session_id: str, body: QuizCreate):
+@limiter.limit("10/hour")
+async def create_quiz_session(request: Request, session_id: str, body: QuizCreate, user_id: str = Depends(get_current_user)):
     db = get_supabase()
-
-    # Get session
-    session = db.table("sessions").select("*").eq("id", session_id).single().execute()
-    if not session.data:
-        raise HTTPException(status_code=404, detail="Session not found")
-
-    s = session.data
+    s = _verify_session_owner(session_id, user_id)
 
     # Get prep sources if available
     prep_result = (
@@ -54,7 +64,7 @@ async def create_quiz_session(session_id: str, body: QuizCreate):
         num_questions=body.num_questions,
     )
 
-    # Save quiz session — mode column still required by DB, store as "open"
+    # Save quiz session
     result = (
         db.table("quiz_sessions")
         .insert(
@@ -63,6 +73,7 @@ async def create_quiz_session(session_id: str, body: QuizCreate):
                 "mode": "open",
                 "questions": questions,
                 "answers": [],
+                "status": "in_progress",
             }
         )
         .execute()
@@ -75,22 +86,17 @@ async def create_quiz_session(session_id: str, body: QuizCreate):
 
 
 @router.post("/{session_id}/quiz/{quiz_id}/submit")
-async def submit_quiz_answers(session_id: str, quiz_id: str, body: QuizSubmit):
+@limiter.limit("20/hour")
+async def submit_quiz_answers(request: Request, session_id: str, quiz_id: str, body: QuizSubmit, user_id: str = Depends(get_current_user)):
     db = get_supabase()
+    s = _verify_session_owner(session_id, user_id)
 
     # Get quiz session
     quiz = db.table("quiz_sessions").select("*").eq("id", quiz_id).single().execute()
     if not quiz.data:
         raise HTTPException(status_code=404, detail="Quiz session not found")
 
-    # Get session for context
-    session = db.table("sessions").select("*").eq("id", session_id).single().execute()
-    if not session.data:
-        raise HTTPException(status_code=404, detail="Session not found")
-
-    s = session.data
     q = quiz.data
-
     answers_data = [a.dict() for a in body.answers]
 
     # Evaluate answers
@@ -105,7 +111,7 @@ async def submit_quiz_answers(session_id: str, quiz_id: str, body: QuizSubmit):
     # Update quiz session with answers and feedback
     result = (
         db.table("quiz_sessions")
-        .update({"answers": answers_data, "feedback": feedback})
+        .update({"answers": answers_data, "feedback": feedback, "status": "completed"})
         .eq("id", quiz_id)
         .execute()
     )
@@ -117,7 +123,9 @@ async def submit_quiz_answers(session_id: str, quiz_id: str, body: QuizSubmit):
 
 
 @router.get("/{session_id}/quiz")
-async def list_quiz_sessions(session_id: str):
+async def list_quiz_sessions(session_id: str, user_id: str = Depends(get_current_user)):
+    _verify_session_owner(session_id, user_id)
+
     db = get_supabase()
     result = (
         db.table("quiz_sessions")
@@ -130,7 +138,9 @@ async def list_quiz_sessions(session_id: str):
 
 
 @router.get("/{session_id}/quiz/{quiz_id}")
-async def get_quiz_session(session_id: str, quiz_id: str):
+async def get_quiz_session(session_id: str, quiz_id: str, user_id: str = Depends(get_current_user)):
+    _verify_session_owner(session_id, user_id)
+
     db = get_supabase()
     result = db.table("quiz_sessions").select("*").eq("id", quiz_id).single().execute()
     if not result.data:

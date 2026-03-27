@@ -1,13 +1,13 @@
 import smtplib
-import base64
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
 from typing import Optional
 from app.database import get_supabase
 from app.config import SMTP_HOST, SMTP_PORT, SMTP_LOGIN, SMTP_PASSWORD, CONTACT_EMAIL
+from app.auth import get_current_user
 
 router = APIRouter(prefix="/api", tags=["contact"])
 
@@ -16,12 +16,12 @@ MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
 
 @router.post("/contact")
 async def submit_contact(
-    user_id: str = Form(...),
     user_name: str = Form(...),
     user_email: str = Form(...),
     type: str = Form(...),
     message: str = Form(...),
     screenshot: Optional[UploadFile] = File(None),
+    user_id: str = Depends(get_current_user),
 ):
     screenshot_url = None
     screenshot_data = None
