@@ -22,11 +22,18 @@
       "Bash(node -e \"const l = require\\(''lucide-react''\\); console.log\\(Object.keys\\(l\\).filter\\(k => k.toLowerCase\\(\\).includes\\(''git''\\)\\).join\\('', ''\\)\\)\")",
       "Bash(find /Users/pramodreddypandiri/Desktop/Projects/inter-prep/backend -type f -name *.py -not -path */venv/* -not -path */__pycache__/*)",
       "Bash(python -c \":*)",
-      "Bash(venv/bin/pip install:*)"
+      "Bash(venv/bin/pip install:*)",
+      "Bash(find /Users/pramodreddypandiri/Desktop/Projects/inter-prep -name *.test.* -o -name *.spec.* -o -name jest.config.* -o -name pytest.ini -o -name conftest.py)",
+      "Bash(venv/bin/python -m pytest tests/ -v --tb=short)",
+      "Bash(npx vitest:*)",
+      "Bash(venv/bin/python -m pytest tests/ -v)",
+      "Bash(npm test:*)"
     ],
     "additionalDirectories": [
       "/Users/pramodreddypandiri/Desktop/Projects/inter-prep",
-      "/Users/pramodreddypandiri/Desktop/Projects/inter-prep/frontend/src/app/sessions"
+      "/Users/pramodreddypandiri/Desktop/Projects/inter-prep/frontend/src/app/sessions",
+      "/Users/pramodreddypandiri/Desktop/Projects/inter-prep/.claude",
+      "/Users/pramodreddypandiri/Desktop/Projects/inter-prep/backend"
     ]
   }
 }

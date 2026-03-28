@@ -1,5 +1,6 @@
 # InterviewAce — Claude Code Instructions
-
+## Instructons - MUST DO
+ - run '/compact' when context window is 50% full. 
 ## Docs Policy
 
 **After every major change, update the files in `docs/`.**
@@ -14,7 +15,7 @@ What counts as a major change:
 Files to update:
 - `docs/changelog.md` — add a dated entry summarizing what changed and why
 - `docs/architecture.md` — update any section whose description is now stale
-
+- Update `README.md` for any major change
 Do not update docs for:
 - Minor copy tweaks, style/CSS changes, or typo fixes
 - Dependency version bumps with no behavior change
@@ -29,3 +30,4 @@ InterviewAce is a Next.js + FastAPI interview preparation platform.
 - **Database**: Supabase (PostgreSQL) with Row Level Security
 - **AI**: Anthropic Claude API (`claude-sonnet-4-20250514`)
 - **Auth**: Supabase Auth
+
