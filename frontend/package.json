@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -29,5 +31,10 @@
     "remark-gfm": "^4.0.1",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "jsdom": "^29.0.1",
+    "vitest": "^4.1.2"
   }
 }
