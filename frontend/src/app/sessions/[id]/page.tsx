@@ -53,7 +53,7 @@ export default function SessionDetailPage() {
     return (
       <div className="min-h-screen">
         <Navbar />
-        <div className="max-w-4xl mx-auto px-6 py-10">
+        <div className="max-w-4xl mx-auto px-5 py-10">
           <p className="text-[var(--danger)]">{error || "Session not found."}</p>
         </div>
       </div>
@@ -63,7 +63,7 @@ export default function SessionDetailPage() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <main className="max-w-4xl mx-auto px-6 py-10 space-y-10">
+      <main className="max-w-4xl mx-auto px-5 py-8 md:py-10 space-y-8">
         {/* Header */}
         <div className="animate-fade-in">
           <Link
@@ -74,13 +74,13 @@ export default function SessionDetailPage() {
             All Sessions
           </Link>
           <div className="flex items-start gap-3">
-            <span className="mt-1 flex items-center gap-1.5 px-2.5 py-1 bg-[var(--primary-glow)] text-[var(--primary)] rounded-md text-xs font-medium shrink-0">
+            <span className="mt-1 tag-primary px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 shrink-0">
               <Briefcase size={12} />
               {session.company_name}
             </span>
             <h1
-              className="text-3xl font-bold leading-tight"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-2xl md:text-3xl font-extrabold leading-tight"
+              style={{ fontFamily: "'Syne', sans-serif" }}
             >
               {session.name}
             </h1>
@@ -88,12 +88,9 @@ export default function SessionDetailPage() {
         </div>
 
         {/* Session Details */}
-        <div className="grid gap-5 md:grid-cols-2 animate-fade-in-up delay-1">
-          <div className="border border-[var(--card-border)] bg-[var(--card)] rounded-2xl p-6">
-            <h3
-              className="font-semibold mb-3 flex items-center gap-2 text-sm"
-              style={{ fontFamily: "'Playfair Display', serif" }}
-            >
+        <div className="grid gap-4 md:grid-cols-2 animate-fade-in-up delay-1">
+          <div className="border border-[var(--card-border)] bg-[var(--card)] rounded-2xl p-5">
+            <h3 className="font-bold mb-2.5 flex items-center gap-2 text-sm" style={{ fontFamily: "'Syne', sans-serif" }}>
               <div className="w-7 h-7 rounded-lg bg-[var(--primary-glow)] flex items-center justify-center">
                 <Briefcase size={14} className="text-[var(--primary)]" />
               </div>
@@ -103,13 +100,10 @@ export default function SessionDetailPage() {
               {session.round_description}
             </p>
           </div>
-          <div className="border border-[var(--card-border)] bg-[var(--card)] rounded-2xl p-6">
-            <h3
-              className="font-semibold mb-3 flex items-center gap-2 text-sm"
-              style={{ fontFamily: "'Playfair Display', serif" }}
-            >
-              <div className="w-7 h-7 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
-                <FileText size={14} className="text-[var(--primary)]" />
+          <div className="border border-[var(--card-border)] bg-[var(--card)] rounded-2xl p-5">
+            <h3 className="font-bold mb-2.5 flex items-center gap-2 text-sm" style={{ fontFamily: "'Syne', sans-serif" }}>
+              <div className="w-7 h-7 rounded-lg bg-[var(--accent-glow)] flex items-center justify-center">
+                <FileText size={14} className="text-[var(--accent)]" />
               </div>
               Job Description
             </h3>
@@ -120,13 +114,13 @@ export default function SessionDetailPage() {
         </div>
 
         {/* Navigation Cards */}
-        <div className="grid gap-5 md:grid-cols-2 animate-fade-in-up delay-2">
+        <div className="grid gap-4 md:grid-cols-2 animate-fade-in-up delay-2">
           <Link
             href={`/sessions/${sessionId}/prepare`}
-            className="card-hover group border border-[var(--card-border)] bg-[var(--card)] rounded-2xl p-7 block"
+            className="gradient-border group bg-[var(--card)] rounded-2xl p-6 block"
           >
             <div className="flex items-start justify-between">
-              <div className="w-12 h-12 rounded-xl bg-[var(--primary-glow)] flex items-center justify-center group-hover:bg-[var(--primary)]/20 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-[var(--primary-glow)] flex items-center justify-center group-hover:bg-[var(--primary)]/20 transition-all">
                 <BookOpen size={22} className="text-[var(--primary)]" />
               </div>
               <ArrowRight
@@ -135,23 +129,22 @@ export default function SessionDetailPage() {
               />
             </div>
             <h2
-              className="text-xl font-bold mt-5 group-hover:text-[var(--primary)] transition-colors"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-xl font-extrabold mt-4 group-hover:text-[var(--primary)] transition-colors"
+              style={{ fontFamily: "'Syne', sans-serif" }}
             >
               Prepare
             </h2>
-            <p className="text-sm text-[var(--muted)] mt-2 leading-relaxed">
-              AI-generated prep materials, study resources, and practice quizzes
-              to get you interview-ready.
+            <p className="text-sm text-[var(--muted)] mt-1.5 leading-relaxed">
+              AI-generated prep materials, study resources, and practice quizzes.
             </p>
           </Link>
 
           <Link
             href={`/sessions/${sessionId}/mock`}
-            className="card-hover group border border-[var(--card-border)] bg-[var(--card)] rounded-2xl p-7 block"
+            className="gradient-border group bg-[var(--card)] rounded-2xl p-6 block"
           >
             <div className="flex items-start justify-between">
-              <div className="w-12 h-12 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center group-hover:bg-[var(--primary)]/20 transition-colors">
+              <div className="w-12 h-12 rounded-xl bg-[var(--primary-glow)] flex items-center justify-center group-hover:bg-[var(--primary)]/20 transition-all">
                 <MessageSquare size={22} className="text-[var(--primary)]" />
               </div>
               <ArrowRight
@@ -160,14 +153,13 @@ export default function SessionDetailPage() {
               />
             </div>
             <h2
-              className="text-xl font-bold mt-5 group-hover:text-[var(--primary)] transition-colors"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-xl font-extrabold mt-4 group-hover:text-[var(--primary)] transition-colors"
+              style={{ fontFamily: "'Syne', sans-serif" }}
             >
               Mock Interviews
             </h2>
-            <p className="text-sm text-[var(--muted)] mt-2 leading-relaxed">
-              Realistic AI-conducted interviews with adaptive questions and
-              detailed feedback reports.
+            <p className="text-sm text-[var(--muted)] mt-1.5 leading-relaxed">
+              Realistic AI interviews with adaptive questions and feedback.
             </p>
           </Link>
         </div>

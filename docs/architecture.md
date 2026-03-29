@@ -12,7 +12,7 @@ Browser (Next.js)  ←→  FastAPI Backend  ←→  Supabase (Postgres + Auth)
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS 4 |
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS 4, recharts |
 | Backend | FastAPI, Python 3.9+, Pydantic |
 | Database | Supabase (PostgreSQL) with Row Level Security |
 | AI | Anthropic Claude API (`claude-sonnet-4-20250514`) |
@@ -180,6 +180,17 @@ interface EyeTrackerRef {
 ```
 
 Props: `autoStart`, `onWarning`, `onGazeSignal`, `onAudioSignal`, `onRiskUpdate`.
+
+---
+
+## Design System ("Apex")
+
+Dark-first premium coaching aesthetic defined in `globals.css`:
+
+- **Colors**: Monochromatic emerald (`#10b981` dark / `#059669` light), with full light mode via `prefers-color-scheme`
+- **Typography**: Syne (display/headings) + Plus Jakarta Sans (body)
+- **Utility classes**: `.btn-primary`, `.btn-ghost`, `.input-base`, `.gradient-border`, `.tag-primary`, `.tag-accent`, `.accent-badge`, `.orb`, `.step-active/.step-complete/.step-inactive`
+- **Coaching reframe**: Detection signals are presented as coaching insights — "Focus Score" (inverted from risk), "Interview Presence" (not integrity), "Focus Tips" (not suspicious events)
 
 ---
 

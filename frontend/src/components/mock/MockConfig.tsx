@@ -56,8 +56,8 @@ export default function MockConfig({ sessionId }: MockConfigProps) {
   return (
     <div className="space-y-6">
       <h3
-        className="text-lg font-semibold"
-        style={{ fontFamily: "'Playfair Display', serif" }}
+        className="text-lg font-bold"
+        style={{ fontFamily: "'Syne', sans-serif" }}
       >
         Configure Mock Interview
       </h3>
@@ -69,20 +69,20 @@ export default function MockConfig({ sessionId }: MockConfigProps) {
       )}
 
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+        <label className="block text-xs font-semibold tracking-wide uppercase text-[var(--muted)]">
           Topics / Focus Areas
         </label>
         <textarea
           value={topics}
           onChange={(e) => setTopics(e.target.value)}
           rows={2}
-          className="w-full px-4 py-3 rounded-xl border border-[var(--card-border)] bg-[var(--background)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm resize-y leading-relaxed"
+          className="input-base resize-y leading-relaxed"
           placeholder='e.g. "system design and one behavioral question"'
         />
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+        <label className="block text-xs font-semibold tracking-wide uppercase text-[var(--muted)]">
           Duration
         </label>
         <div className="flex gap-2">
@@ -103,7 +103,7 @@ export default function MockConfig({ sessionId }: MockConfigProps) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+        <label className="block text-xs font-semibold tracking-wide uppercase text-[var(--muted)]">
           Difficulty
         </label>
         <div className="grid gap-2 sm:grid-cols-4">
@@ -127,7 +127,7 @@ export default function MockConfig({ sessionId }: MockConfigProps) {
       <button
         onClick={handleStart}
         disabled={loading}
-        className="btn-shine w-full py-3.5 px-4 bg-[var(--primary)] text-white rounded-xl font-medium hover:opacity-90 transition-all disabled:opacity-50 shadow-lg flex items-center justify-center gap-2"
+        className="btn-shine btn-primary w-full justify-center !py-3.5"
       >
         {loading ? (
           <>

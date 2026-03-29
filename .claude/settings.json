@@ -27,7 +27,9 @@
       "Bash(venv/bin/python -m pytest tests/ -v --tb=short)",
       "Bash(npx vitest:*)",
       "Bash(venv/bin/python -m pytest tests/ -v)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "WebSearch",
+      "Bash(npm run:*)"
     ],
     "additionalDirectories": [
       "/Users/pramodreddypandiri/Desktop/Projects/inter-prep",

@@ -4,6 +4,32 @@ All notable changes to InterviewAce are recorded here.
 
 ---
 
+## [Unreleased] — 2026-03-28
+
+### Changed — "Apex" UI Redesign (full frontend)
+Complete visual redesign of the InterviewAce frontend on the `new_ui` branch.
+
+**Design system:**
+- Monochromatic emerald palette: primary `#10b981` (dark) / `#059669` (light) with full light-mode support via `prefers-color-scheme`
+- Typography: Syne (headings) + Plus Jakarta Sans (body), replacing Playfair Display + DM Sans
+- New CSS utility classes: `.btn-primary`, `.btn-ghost`, `.input-base`, `.gradient-border`, `.tag-primary`, `.tag-accent`, `.accent-badge`, `.orb`, step indicators
+- New animations: `slide-in-left`, `pulse-ring`, `border-flow`, `spin-slow`
+
+**Page changes:**
+- **Landing** — feature cards grid, animated gradient headline, accent badge, floating orbs
+- **Dashboard** — time-based greeting, stats row (sessions/preparing/active), "continue where you left off" card
+- **Session creation** — 4-step wizard (Basics → Job Details → Round Info → Resume) with step indicator
+- **Navbar** — mobile hamburger menu with dropdown, glass-morphism background
+- **Auth pages** — updated to new design tokens and typography
+- **Session detail / prepare / mock list** — gradient-border cards, accent-glow highlights
+- **Quiz** — gradient progress bar (primary→accent), amber focus areas instead of red
+- **Mock interview feedback** — coaching reframe: "Risk Score" → "Focus Score" (inverted), "Integrity Analysis" → "Interview Presence", "Suspicious Events" → "Focus Tips"; new `SkillsRadar` component using recharts `RadarChart` for 5-dimension skills visualization
+- **Contact** — updated form styling
+
+**New dependency:** `recharts` (for SkillsRadar radar chart)
+
+---
+
 ## [Unreleased] — 2026-03-26
 
 ### Fixed — Graceful shutdown & in-flight operation tracking (#11)
