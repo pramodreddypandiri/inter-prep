@@ -55,9 +55,7 @@ export default function PreparePage() {
   const [quizzes, setQuizzes] = useState<QuizSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [regeneratingSection, setRegeneratingSection] = useState<string | null>(
-    null
-  );
+  const [regeneratingSection, setRegeneratingSection] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [showQuizConfig, setShowQuizConfig] = useState(false);
 
@@ -86,9 +84,7 @@ export default function PreparePage() {
       const data = await api.generatePrepSources(sessionId);
       setPrepSource(data);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to generate prep sources"
-      );
+      setError(err instanceof Error ? err.message : "Failed to generate prep sources");
     } finally {
       setGenerating(false);
     }
@@ -101,15 +97,10 @@ export default function PreparePage() {
       const result = await api.regeneratePrepSection(sessionId, sectionKey);
       setPrepSource((prev) => {
         if (!prev) return prev;
-        return {
-          ...prev,
-          content: { ...prev.content, [sectionKey]: result.content },
-        };
+        return { ...prev, content: { ...prev.content, [sectionKey]: result.content } };
       });
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to regenerate section"
-      );
+      setError(err instanceof Error ? err.message : "Failed to regenerate section");
     } finally {
       setRegeneratingSection(null);
     }
@@ -131,7 +122,7 @@ export default function PreparePage() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <main className="max-w-4xl mx-auto px-6 py-10 space-y-8">
+      <main className="max-w-4xl mx-auto px-5 py-8 md:py-10 space-y-7">
         {/* Header */}
         <div className="animate-fade-in">
           <Link
@@ -140,19 +131,16 @@ export default function PreparePage() {
           >
             <ArrowLeft size={12} /> Back to Session
           </Link>
-          <p className="text-xs tracking-[0.2em] uppercase text-[var(--primary)] font-medium mb-2">
+          <p className="text-xs tracking-[0.2em] uppercase text-[var(--primary)] font-semibold mb-2">
             Study & Practice
           </p>
-          <h1
-            className="text-3xl font-bold"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
+          <h1 className="text-2xl md:text-3xl font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
             Prepare
           </h1>
         </div>
 
         {error && (
-          <div className="p-3 rounded-lg bg-[var(--danger)]/10 border border-[var(--danger)]/20 text-[var(--danger)] text-sm animate-fade-in-scale">
+          <div className="p-3 rounded-xl bg-[var(--danger)]/10 border border-[var(--danger)]/20 text-[var(--danger)] text-sm animate-fade-in-scale">
             {error}
           </div>
         )}
@@ -161,7 +149,7 @@ export default function PreparePage() {
         <div className="flex gap-1 p-1 bg-[var(--surface)] rounded-xl w-fit animate-fade-in delay-1">
           <button
             onClick={() => setMainTab("materials")}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
               mainTab === "materials"
                 ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
                 : "text-[var(--muted)] hover:text-[var(--foreground)]"
@@ -172,7 +160,7 @@ export default function PreparePage() {
           </button>
           <button
             onClick={() => setMainTab("quiz")}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
               mainTab === "quiz"
                 ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
                 : "text-[var(--muted)] hover:text-[var(--foreground)]"
@@ -181,14 +169,14 @@ export default function PreparePage() {
             <Brain size={15} />
             Quizzes
             {quizzes.length > 0 && (
-              <span className="px-1.5 py-0.5 text-xs rounded-full bg-[var(--primary-glow)] text-[var(--primary)] font-semibold">
+              <span className="px-1.5 py-0.5 text-xs rounded-full tag-accent font-bold">
                 {quizzes.length}
               </span>
             )}
           </button>
         </div>
 
-        {/* ==================== PREP MATERIALS TAB ==================== */}
+        {/* PREP MATERIALS TAB */}
         {mainTab === "materials" && (
           <>
             {prepSource ? (
@@ -199,7 +187,7 @@ export default function PreparePage() {
                     <button
                       key={key}
                       onClick={() => setActiveSection(key)}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
                         activeSection === key
                           ? "bg-[var(--primary)] text-white shadow-md shadow-[var(--primary-glow)]"
                           : "bg-[var(--card)] text-[var(--muted)] hover:text-[var(--foreground)] border border-[var(--card-border)] hover:border-[var(--primary)]/30"
@@ -212,31 +200,20 @@ export default function PreparePage() {
                 </div>
 
                 {/* Active section content */}
-                <div className="border border-[var(--card-border)] bg-[var(--card)] rounded-2xl p-7">
-                  <div className="flex items-center justify-between mb-6">
-                    <h3
-                      className="font-semibold text-lg"
-                      style={{ fontFamily: "'Playfair Display', serif" }}
-                    >
-                      {
-                        SECTION_META.find((s) => s.key === activeSection)?.label
-                      }
+                <div className="border border-[var(--card-border)] bg-[var(--card)] rounded-2xl p-6">
+                  <div className="flex items-center justify-between mb-5">
+                    <h3 className="font-bold text-lg" style={{ fontFamily: "'Syne', sans-serif" }}>
+                      {SECTION_META.find((s) => s.key === activeSection)?.label}
                     </h3>
                     <button
                       onClick={() => handleRegenerateSection(activeSection)}
                       disabled={regeneratingSection === activeSection}
-                      className="flex items-center gap-1.5 px-3.5 py-2 text-xs border border-[var(--card-border)] rounded-lg hover:border-[var(--primary)] hover:text-[var(--primary)] transition-all disabled:opacity-50"
+                      className="btn-ghost !py-2 !px-3 !text-xs"
                     >
                       {regeneratingSection === activeSection ? (
-                        <>
-                          <Loader2 size={12} className="animate-spin" />
-                          Regenerating...
-                        </>
+                        <><Loader2 size={12} className="animate-spin" /> Regenerating...</>
                       ) : (
-                        <>
-                          <RefreshCw size={12} />
-                          Regenerate
-                        </>
+                        <><RefreshCw size={12} /> Regenerate</>
                       )}
                     </button>
                   </div>
@@ -246,9 +223,7 @@ export default function PreparePage() {
                       <div className="flex items-center justify-center py-16">
                         <div className="text-center">
                           <div className="w-8 h-8 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                          <p className="text-xs text-[var(--muted)]">
-                            Regenerating...
-                          </p>
+                          <p className="text-xs text-[var(--muted)]">Regenerating...</p>
                         </div>
                       </div>
                     ) : (
@@ -274,7 +249,6 @@ export default function PreparePage() {
                   </div>
                 </div>
 
-                {/* Regenerate all */}
                 <div className="flex justify-end">
                   <button
                     onClick={handleGenerateAll}
@@ -282,28 +256,19 @@ export default function PreparePage() {
                     className="flex items-center gap-1.5 px-4 py-2 text-xs text-[var(--muted)] hover:text-[var(--primary)] transition-colors disabled:opacity-50"
                   >
                     {generating ? (
-                      <>
-                        <Loader2 size={13} className="animate-spin" />
-                        Regenerating all...
-                      </>
+                      <><Loader2 size={13} className="animate-spin" /> Regenerating all...</>
                     ) : (
-                      <>
-                        <RefreshCw size={13} />
-                        Regenerate all sections
-                      </>
+                      <><RefreshCw size={13} /> Regenerate all sections</>
                     )}
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="animate-fade-in-up text-center py-20 border border-dashed border-[var(--card-border)] rounded-2xl bg-[var(--card)]/50">
-                <div className="w-16 h-16 rounded-2xl bg-[var(--primary-glow)] flex items-center justify-center mx-auto mb-5">
+              <div className="animate-fade-in-up text-center py-20 border border-dashed border-[var(--card-border)] rounded-2xl bg-[var(--card)]">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--primary-glow)] to-[var(--primary-glow)] flex items-center justify-center mx-auto mb-5">
                   <Sparkles size={28} className="text-[var(--primary)]" />
                 </div>
-                <h2
-                  className="text-xl font-bold mb-2"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
-                >
+                <h2 className="text-xl font-bold mb-2" style={{ fontFamily: "'Syne', sans-serif" }}>
                   Generate your prep materials
                 </h2>
                 <p className="text-[var(--muted)] text-sm mb-6 max-w-sm mx-auto">
@@ -312,18 +277,12 @@ export default function PreparePage() {
                 <button
                   onClick={handleGenerateAll}
                   disabled={generating}
-                  className="btn-shine inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-xl text-sm font-medium hover:bg-[var(--primary-hover)] transition-all disabled:opacity-50 shadow-lg shadow-[var(--primary-glow)]"
+                  className="btn-shine btn-primary"
                 >
                   {generating ? (
-                    <>
-                      <Loader2 size={15} className="animate-spin" />
-                      Generating...
-                    </>
+                    <><Loader2 size={15} className="animate-spin" /> Generating...</>
                   ) : (
-                    <>
-                      <Sparkles size={15} />
-                      Generate Prep Sources
-                    </>
+                    <><Sparkles size={15} /> Generate Prep Sources</>
                   )}
                 </button>
               </div>
@@ -331,17 +290,13 @@ export default function PreparePage() {
           </>
         )}
 
-        {/* ==================== QUIZZES TAB ==================== */}
+        {/* QUIZZES TAB */}
         {mainTab === "quiz" && (
           <section className="space-y-5 animate-fade-in-up">
             <div className="flex items-center justify-end">
               <button
                 onClick={() => setShowQuizConfig(!showQuizConfig)}
-                className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  showQuizConfig
-                    ? "bg-[var(--surface)] text-[var(--muted)] hover:text-[var(--foreground)]"
-                    : "btn-shine bg-[var(--primary)] text-white hover:bg-[var(--primary-hover)] shadow-lg shadow-[var(--primary-glow)]"
-                }`}
+                className={showQuizConfig ? "btn-ghost" : "btn-shine btn-primary"}
               >
                 {showQuizConfig ? "Cancel" : "New Quiz"}
               </button>
@@ -359,34 +314,28 @@ export default function PreparePage() {
                   <Link
                     key={quiz.id}
                     href={`/sessions/${sessionId}/quiz/${quiz.id}`}
-                    className={`card-hover block border border-[var(--card-border)] bg-[var(--card)] rounded-2xl p-5 animate-fade-in-up delay-${Math.min(i + 1, 6)}`}
+                    className={`gradient-border block bg-[var(--card)] rounded-2xl p-5 animate-fade-in-up delay-${Math.min(i + 1, 6)}`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
-                          <Brain size={16} className="text-[var(--primary)]" />
+                        <div className="w-9 h-9 rounded-lg bg-[var(--accent-glow)] flex items-center justify-center">
+                          <Brain size={16} className="text-[var(--accent)]" />
                         </div>
                         <div>
-                          <span className="font-medium capitalize text-sm">
+                          <span className="font-semibold capitalize text-sm">
                             {quiz.mode} Quiz
                           </span>
                           <span className="text-xs text-[var(--muted)] ml-2 inline-flex items-center gap-1">
                             <Clock size={10} />
-                            {new Date(quiz.created_at).toLocaleDateString(
-                              "en-US",
-                              {
-                                month: "short",
-                                day: "numeric",
-                              }
-                            )}
+                            {new Date(quiz.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                           </span>
                         </div>
                       </div>
                       <span
-                        className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                        className={`text-xs px-2.5 py-1 rounded-lg font-semibold ${
                           quiz.feedback
                             ? "bg-[var(--success)]/10 text-[var(--success)]"
-                            : "bg-[var(--primary-glow)] text-[var(--primary)]"
+                            : "tag-primary"
                         }`}
                       >
                         {quiz.feedback ? "Completed" : "In Progress"}
@@ -401,14 +350,11 @@ export default function PreparePage() {
                 ))}
               </div>
             ) : !showQuizConfig ? (
-              <div className="text-center py-20 border border-dashed border-[var(--card-border)] rounded-2xl bg-[var(--card)]/50">
-                <div className="w-14 h-14 rounded-2xl bg-[var(--primary)]/10 flex items-center justify-center mx-auto mb-4">
-                  <Brain size={24} className="text-[var(--primary)]" />
+              <div className="text-center py-20 border border-dashed border-[var(--card-border)] rounded-2xl bg-[var(--card)]">
+                <div className="w-14 h-14 rounded-2xl bg-[var(--accent-glow)] flex items-center justify-center mx-auto mb-4">
+                  <Brain size={24} className="text-[var(--accent)]" />
                 </div>
-                <h3
-                  className="font-bold mb-1"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
-                >
+                <h3 className="font-bold mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>
                   No quizzes yet
                 </h3>
                 <p className="text-[var(--muted)] text-sm">

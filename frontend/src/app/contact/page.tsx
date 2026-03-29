@@ -53,13 +53,9 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      setError("Please sign in to send a message.");
-      return;
-    }
+    if (!user) { setError("Please sign in to send a message."); return; }
     setSending(true);
     setError("");
-
     try {
       await api.submitContact({
         user_name: user.name,
@@ -79,15 +75,14 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen gradient-mesh relative overflow-hidden">
       <div
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.025]"
         style={{
-          backgroundImage:
-            "linear-gradient(var(--card-border) 1px, transparent 1px), linear-gradient(90deg, var(--card-border) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
+          backgroundImage: "linear-gradient(var(--card-border) 1px, transparent 1px), linear-gradient(90deg, var(--card-border) 1px, transparent 1px)",
+          backgroundSize: "64px 64px",
         }}
       />
 
-      <div className="relative z-10 max-w-2xl mx-auto px-6 py-12">
+      <div className="relative z-10 max-w-2xl mx-auto px-5 py-10">
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-2 text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors mb-8"
@@ -96,47 +91,39 @@ export default function ContactPage() {
           Back to dashboard
         </Link>
 
-        <div className="mb-10">
+        <div className="mb-8">
           <h1
-            className="text-4xl font-bold tracking-tight mb-3"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-3xl md:text-4xl font-extrabold tracking-tight mb-3"
+            style={{ fontFamily: "'Syne', sans-serif" }}
           >
             Get in <span className="text-[var(--primary)]">touch</span>
           </h1>
-          <p className="text-[var(--muted)] text-lg">
+          <p className="text-[var(--muted)] text-base md:text-lg">
             Have feedback, found a bug, or need help? We&apos;d love to hear from you.
           </p>
           {user && (
             <p className="text-sm text-[var(--muted)] mt-2">
-              Sending as <span className="text-[var(--foreground)]">{user.name}</span> ({user.email})
+              Sending as <span className="text-[var(--foreground)] font-semibold">{user.name}</span> ({user.email})
             </p>
           )}
         </div>
 
         {submitted ? (
-          <div className="card p-8 text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center mx-auto">
-              <Send size={20} className="text-green-400" />
+          <div className="border border-[var(--card-border)] bg-[var(--card)] rounded-2xl p-8 text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-[var(--success)]/10 flex items-center justify-center mx-auto">
+              <Send size={20} className="text-[var(--success)]" />
             </div>
-            <h2 className="text-xl font-semibold">Message sent!</h2>
+            <h2 className="text-xl font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>Message sent!</h2>
             <p className="text-[var(--muted)]">
               Thank you for reaching out. We&apos;ll get back to you soon.
             </p>
             <div className="flex gap-3 justify-center mt-4">
-              <Link
-                href="/dashboard"
-                className="px-6 py-2.5 bg-[var(--primary)] text-white rounded-lg text-sm font-medium hover:bg-[var(--primary-hover)] transition-all"
-              >
+              <Link href="/dashboard" className="btn-primary">
                 Back to Dashboard
               </Link>
               <button
-                onClick={() => {
-                  setSubmitted(false);
-                  setMessage("");
-                  setType("feedback");
-                  removeScreenshot();
-                }}
-                className="px-6 py-2.5 border border-[var(--card-border)] rounded-lg text-sm font-medium hover:bg-[var(--surface)] transition-all"
+                onClick={() => { setSubmitted(false); setMessage(""); setType("feedback"); removeScreenshot(); }}
+                className="btn-ghost"
               >
                 Send Another
               </button>
@@ -145,7 +132,7 @@ export default function ContactPage() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">What can we help with?</label>
+              <label className="block text-sm font-semibold mb-2">What can we help with?</label>
               <div className="flex gap-3">
                 {[
                   { value: "feedback", label: "Feedback" },
@@ -156,9 +143,9 @@ export default function ContactPage() {
                     key={opt.value}
                     type="button"
                     onClick={() => setType(opt.value)}
-                    className={`px-4 py-2 rounded-lg text-sm border transition-all ${
+                    className={`px-4 py-2 rounded-xl text-sm border font-semibold transition-all ${
                       type === opt.value
-                        ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
+                        ? "border-[var(--primary)] bg-[var(--primary-glow)] text-[var(--primary)]"
                         : "border-[var(--card-border)] text-[var(--muted)] hover:border-[var(--primary)]"
                     }`}
                   >
@@ -169,31 +156,26 @@ export default function ContactPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Message</label>
+              <label className="block text-sm font-semibold mb-2">Message</label>
               <textarea
                 required
                 rows={5}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="w-full px-4 py-2.5 bg-[var(--surface)] border border-[var(--card-border)] rounded-lg text-sm focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
+                className="input-base resize-none leading-relaxed"
                 placeholder="Tell us what's on your mind..."
               />
             </div>
 
-            {/* Screenshot upload */}
             <div>
-              <label className="block text-sm font-medium mb-2">Screenshot (optional)</label>
+              <label className="block text-sm font-semibold mb-2">Screenshot (optional)</label>
               {preview ? (
                 <div className="relative inline-block">
-                  <img
-                    src={preview}
-                    alt="Screenshot preview"
-                    className="max-h-48 rounded-lg border border-[var(--card-border)]"
-                  />
+                  <img src={preview} alt="Screenshot preview" className="max-h-48 rounded-xl border border-[var(--card-border)]" />
                   <button
                     type="button"
                     onClick={removeScreenshot}
-                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                    className="absolute -top-2 -right-2 w-6 h-6 bg-[var(--danger)] text-white rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
                   >
                     <X size={14} />
                   </button>
@@ -203,29 +185,21 @@ export default function ContactPage() {
                 <button
                   type="button"
                   onClick={() => fileRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-3 border border-dashed border-[var(--card-border)] rounded-lg text-sm text-[var(--muted)] hover:border-[var(--primary)] hover:text-[var(--foreground)] transition-all w-full justify-center"
+                  className="flex items-center gap-2 px-4 py-3 border border-dashed border-[var(--card-border)] rounded-xl text-sm text-[var(--muted)] hover:border-[var(--primary)] hover:text-[var(--foreground)] transition-all w-full justify-center"
                 >
                   <ImagePlus size={18} />
                   Click to upload a screenshot
                 </button>
               )}
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-              />
+              <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
             </div>
 
-            {error && (
-              <p className="text-sm text-red-400">{error}</p>
-            )}
+            {error && <p className="text-sm text-[var(--danger)]">{error}</p>}
 
             <button
               type="submit"
               disabled={sending || !user}
-              className="btn-shine flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-lg font-medium hover:bg-[var(--primary-hover)] transition-all shadow-lg shadow-[var(--primary-glow)] disabled:opacity-50"
+              className="btn-shine btn-primary"
             >
               <Send size={16} />
               {sending ? "Sending..." : "Send Message"}
@@ -233,7 +207,6 @@ export default function ContactPage() {
           </form>
         )}
 
-        {/* Alternative contact */}
         <div className="mt-12 pt-8 border-t border-[var(--card-border)]">
           <p className="text-sm text-[var(--muted)] mb-4">You can also reach us through:</p>
           <div className="flex gap-4">
@@ -241,16 +214,16 @@ export default function ContactPage() {
               href="https://github.com/pramodreddypandiri/inter-prep/issues"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2.5 border border-[var(--card-border)] rounded-lg text-sm text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[var(--primary)] transition-all"
+              className="btn-ghost !text-xs"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
               GitHub Issues
             </a>
             <a
               href="mailto:pramodreddypandiri010@gmail.com"
-              className="flex items-center gap-2 px-4 py-2.5 border border-[var(--card-border)] rounded-lg text-sm text-[var(--muted)] hover:text-[var(--foreground)] hover:border-[var(--primary)] transition-all"
+              className="btn-ghost !text-xs"
             >
-              <Mail size={16} />
+              <Mail size={15} />
               Email Directly
             </a>
           </div>

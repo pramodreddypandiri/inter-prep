@@ -37,23 +37,28 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left — decorative panel */}
+      {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 gradient-mesh relative items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: "linear-gradient(var(--card-border) 1px, transparent 1px), linear-gradient(90deg, var(--card-border) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }} />
-        <div className="absolute top-1/3 right-1/4 w-72 h-72 rounded-full bg-[var(--primary)] opacity-[0.06] blur-3xl" />
-        <div className="absolute bottom-1/4 left-1/3 w-64 h-64 rounded-full bg-[var(--primary)] opacity-[0.05] blur-3xl" />
+        <div
+          className="absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage: "linear-gradient(var(--card-border) 1px, transparent 1px), linear-gradient(90deg, var(--card-border) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+          }}
+        />
+        <div className="orb orb-accent w-72 h-72 top-1/3 right-1/4" />
+        <div className="orb orb-primary w-64 h-64 bottom-1/4 left-1/3" />
 
         <div className="relative z-10 max-w-md px-12 animate-fade-in">
           <h2
-            className="text-4xl font-bold leading-tight mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-4xl font-extrabold leading-tight mb-4"
+            style={{ fontFamily: "'Syne', sans-serif" }}
           >
             Your next offer
             <br />
-            <span className="italic text-[var(--primary)]">starts here.</span>
+            <span className="bg-gradient-to-r from-[var(--primary)] to-emerald-300 bg-clip-text text-transparent">
+              starts here.
+            </span>
           </h2>
           <p className="text-[var(--muted)] leading-relaxed">
             Join candidates who are preparing smarter with AI-generated materials,
@@ -68,38 +73,38 @@ export default function SignupPage() {
           <div>
             <Link
               href="/"
-              className="text-2xl tracking-tight block mb-8"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-2xl font-bold tracking-tight block mb-8"
+              style={{ fontFamily: "'Syne', sans-serif" }}
             >
               Interview<span className="text-[var(--primary)]">Ace</span>
             </Link>
 
             {signupComplete ? (
               <div className="space-y-6">
-                <div className="p-5 rounded-xl border border-[var(--primary)]/20 bg-[var(--primary)]/5">
+                <div className="p-5 rounded-2xl border border-[var(--primary)]/20 bg-[var(--primary-glow)]">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-[var(--primary)]/10 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-[var(--primary)]/10 flex items-center justify-center">
                       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--primary)]">
                         <rect width="20" height="16" x="2" y="4" rx="2" />
                         <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                       </svg>
                     </div>
                     <h1
-                      className="text-2xl font-bold"
-                      style={{ fontFamily: "'Playfair Display', serif" }}
+                      className="text-2xl font-extrabold"
+                      style={{ fontFamily: "'Syne', sans-serif" }}
                     >
                       Check your email
                     </h1>
                   </div>
                   <p className="text-sm text-[var(--muted)] leading-relaxed">
                     We&apos;ve sent a confirmation link to{" "}
-                    <span className="text-[var(--foreground)] font-medium">{email}</span>.
-                    Please click the link in the email to verify your account before signing in.
+                    <span className="text-[var(--foreground)] font-semibold">{email}</span>.
+                    Click the link to verify your account.
                   </p>
                 </div>
 
                 <div className="space-y-3 text-sm text-[var(--muted)]">
-                  <p className="font-medium text-[var(--foreground)] text-xs uppercase tracking-wide">What to do next:</p>
+                  <p className="font-semibold text-[var(--foreground)] text-xs uppercase tracking-wide">What to do next:</p>
                   <ol className="list-decimal list-inside space-y-2 text-sm">
                     <li>Open the confirmation email from InterviewAce</li>
                     <li>Click the confirmation link to verify your account</li>
@@ -113,7 +118,7 @@ export default function SignupPage() {
 
                 <Link
                   href="/auth/login"
-                  className="btn-shine w-full py-3 px-4 bg-[var(--primary)] text-white rounded-lg font-medium hover:bg-[var(--primary-hover)] transition-all shadow-lg shadow-[var(--primary-glow)] text-center block"
+                  className="btn-shine btn-primary w-full justify-center !py-3"
                 >
                   Go to Sign In
                 </Link>
@@ -121,8 +126,8 @@ export default function SignupPage() {
             ) : (
               <>
                 <h1
-                  className="text-3xl font-bold"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
+                  className="text-3xl font-extrabold"
+                  style={{ fontFamily: "'Syne', sans-serif" }}
                 >
                   Create your account
                 </h1>
@@ -137,13 +142,13 @@ export default function SignupPage() {
             <>
               <form onSubmit={handleSignup} className="space-y-5">
                 {error && (
-                  <div className="p-3 rounded-lg bg-[var(--danger)]/10 border border-[var(--danger)]/20 text-[var(--danger)] text-sm animate-fade-in-scale">
+                  <div className="p-3 rounded-xl bg-[var(--danger)]/10 border border-[var(--danger)]/20 text-[var(--danger)] text-sm animate-fade-in-scale">
                     {error}
                   </div>
                 )}
 
                 <div className="space-y-1.5">
-                  <label htmlFor="name" className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+                  <label htmlFor="name" className="block text-xs font-semibold tracking-wide uppercase text-[var(--muted)]">
                     Full Name
                   </label>
                   <input
@@ -152,13 +157,13 @@ export default function SignupPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="w-full px-4 py-3 rounded-lg border border-[var(--card-border)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm"
+                    className="input-base"
                     placeholder="Jane Doe"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="email" className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+                  <label htmlFor="email" className="block text-xs font-semibold tracking-wide uppercase text-[var(--muted)]">
                     Email
                   </label>
                   <input
@@ -167,13 +172,13 @@ export default function SignupPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full px-4 py-3 rounded-lg border border-[var(--card-border)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm"
+                    className="input-base"
                     placeholder="you@example.com"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="password" className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+                  <label htmlFor="password" className="block text-xs font-semibold tracking-wide uppercase text-[var(--muted)]">
                     Password
                   </label>
                   <input
@@ -183,7 +188,7 @@ export default function SignupPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
-                    className="w-full px-4 py-3 rounded-lg border border-[var(--card-border)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm"
+                    className="input-base"
                     placeholder="Min. 6 characters"
                   />
                 </div>
@@ -191,7 +196,7 @@ export default function SignupPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="btn-shine w-full py-3 px-4 bg-[var(--primary)] text-white rounded-lg font-medium hover:bg-[var(--primary-hover)] transition-all disabled:opacity-50 shadow-lg shadow-[var(--primary-glow)]"
+                  className="btn-shine btn-primary w-full justify-center !py-3"
                 >
                   {loading ? "Creating account..." : "Create Account"}
                 </button>
@@ -201,7 +206,7 @@ export default function SignupPage() {
 
               <p className="text-center text-sm text-[var(--muted)]">
                 Already have an account?{" "}
-                <Link href="/auth/login" className="text-[var(--primary)] font-medium hover:underline underline-offset-4">
+                <Link href="/auth/login" className="text-[var(--primary)] font-semibold hover:underline underline-offset-4">
                   Sign in
                 </Link>
               </p>

@@ -34,23 +34,28 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left — decorative panel */}
+      {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 gradient-mesh relative items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: "linear-gradient(var(--card-border) 1px, transparent 1px), linear-gradient(90deg, var(--card-border) 1px, transparent 1px)",
-          backgroundSize: "40px 40px",
-        }} />
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[var(--primary)] opacity-[0.06] blur-3xl" />
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[var(--primary)] opacity-[0.05] blur-3xl" />
+        <div
+          className="absolute inset-0 opacity-[0.025]"
+          style={{
+            backgroundImage: "linear-gradient(var(--card-border) 1px, transparent 1px), linear-gradient(90deg, var(--card-border) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+          }}
+        />
+        <div className="orb orb-primary w-72 h-72 top-1/4 left-1/4" />
+        <div className="orb orb-accent w-80 h-80 bottom-1/3 right-1/4" />
 
         <div className="relative z-10 max-w-md px-12 animate-fade-in">
           <h2
-            className="text-4xl font-bold leading-tight mb-4"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+            className="text-4xl font-extrabold leading-tight mb-4"
+            style={{ fontFamily: "'Syne', sans-serif" }}
           >
             Prepare with
             <br />
-            <span className="italic text-[var(--primary)]">confidence.</span>
+            <span className="bg-gradient-to-r from-[var(--primary)] to-emerald-300 bg-clip-text text-transparent">
+              confidence.
+            </span>
           </h2>
           <p className="text-[var(--muted)] leading-relaxed">
             AI-powered research, adaptive quizzes, and realistic mock interviews
@@ -65,14 +70,14 @@ export default function LoginPage() {
           <div>
             <Link
               href="/"
-              className="text-2xl tracking-tight block mb-8"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-2xl font-bold tracking-tight block mb-8"
+              style={{ fontFamily: "'Syne', sans-serif" }}
             >
               Interview<span className="text-[var(--primary)]">Ace</span>
             </Link>
             <h1
-              className="text-3xl font-bold"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+              className="text-3xl font-extrabold"
+              style={{ fontFamily: "'Syne', sans-serif" }}
             >
               Welcome back
             </h1>
@@ -83,13 +88,13 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-5">
             {error && (
-              <div className="p-3 rounded-lg bg-[var(--danger)]/10 border border-[var(--danger)]/20 text-[var(--danger)] text-sm animate-fade-in-scale">
+              <div className="p-3 rounded-xl bg-[var(--danger)]/10 border border-[var(--danger)]/20 text-[var(--danger)] text-sm animate-fade-in-scale">
                 {error}
               </div>
             )}
 
             <div className="space-y-1.5">
-              <label htmlFor="email" className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+              <label htmlFor="email" className="block text-xs font-semibold tracking-wide uppercase text-[var(--muted)]">
                 Email
               </label>
               <input
@@ -98,13 +103,13 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-lg border border-[var(--card-border)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm"
+                className="input-base"
                 placeholder="you@example.com"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="password" className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+              <label htmlFor="password" className="block text-xs font-semibold tracking-wide uppercase text-[var(--muted)]">
                 Password
               </label>
               <input
@@ -113,7 +118,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-lg border border-[var(--card-border)] bg-[var(--card)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm"
+                className="input-base"
                 placeholder="Enter your password"
               />
             </div>
@@ -121,7 +126,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-shine w-full py-3 px-4 bg-[var(--primary)] text-white rounded-lg font-medium hover:bg-[var(--primary-hover)] transition-all disabled:opacity-50 shadow-lg shadow-[var(--primary-glow)]"
+              className="btn-shine btn-primary w-full justify-center !py-3"
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
@@ -131,7 +136,7 @@ export default function LoginPage() {
 
           <p className="text-center text-sm text-[var(--muted)]">
             Don&apos;t have an account?{" "}
-            <Link href="/auth/signup" className="text-[var(--primary)] font-medium hover:underline underline-offset-4">
+            <Link href="/auth/signup" className="text-[var(--primary)] font-semibold hover:underline underline-offset-4">
               Create one
             </Link>
           </p>

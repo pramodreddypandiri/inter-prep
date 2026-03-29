@@ -34,8 +34,8 @@ export default function QuizConfig({ sessionId }: QuizConfigProps) {
   return (
     <div className="space-y-6">
       <h3
-        className="text-lg font-semibold"
-        style={{ fontFamily: "'Playfair Display', serif" }}
+        className="text-lg font-bold"
+        style={{ fontFamily: "'Syne', sans-serif" }}
       >
         New Quiz
       </h3>
@@ -47,7 +47,7 @@ export default function QuizConfig({ sessionId }: QuizConfigProps) {
       )}
 
       <div className="space-y-1.5">
-        <label className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+        <label className="block text-xs font-semibold tracking-wide uppercase text-[var(--muted)]">
           Topics / Focus Areas
           <span className="normal-case tracking-normal font-normal ml-1">
             (optional)
@@ -57,7 +57,7 @@ export default function QuizConfig({ sessionId }: QuizConfigProps) {
           value={topics}
           onChange={(e) => setTopics(e.target.value)}
           rows={2}
-          className="w-full px-4 py-3 rounded-xl border border-[var(--card-border)] bg-[var(--background)] focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent transition-all text-sm resize-y leading-relaxed"
+          className="input-base resize-y leading-relaxed"
           placeholder='e.g. "distributed systems, behavioral STAR questions, system design trade-offs"'
         />
         <p className="text-xs text-[var(--muted)] mt-1">
@@ -66,7 +66,7 @@ export default function QuizConfig({ sessionId }: QuizConfigProps) {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-xs font-medium tracking-wide uppercase text-[var(--muted)]">
+        <label className="block text-xs font-semibold tracking-wide uppercase text-[var(--muted)]">
           Number of Questions
         </label>
         <div className="flex gap-2">
@@ -89,7 +89,7 @@ export default function QuizConfig({ sessionId }: QuizConfigProps) {
       <button
         onClick={handleStart}
         disabled={loading}
-        className="btn-shine w-full py-3.5 px-4 bg-[var(--primary)] text-white rounded-xl font-medium hover:bg-[var(--primary-hover)] transition-all disabled:opacity-50 shadow-lg shadow-[var(--primary-glow)] flex items-center justify-center gap-2"
+        className="btn-shine btn-primary w-full justify-center !py-3.5"
       >
         {loading ? (
           <>

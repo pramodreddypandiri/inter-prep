@@ -53,7 +53,7 @@ export default function MockInterviewsPage() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <main className="max-w-4xl mx-auto px-6 py-10 space-y-10">
+      <main className="max-w-4xl mx-auto px-5 py-8 md:py-10 space-y-8">
         {/* Header */}
         <div className="animate-fade-in">
           <Link
@@ -62,19 +62,16 @@ export default function MockInterviewsPage() {
           >
             <ArrowLeft size={12} /> Back to Session
           </Link>
-          <p className="text-xs tracking-[0.2em] uppercase text-[var(--primary)] font-medium mb-2">
+          <p className="text-xs tracking-[0.2em] uppercase text-[var(--primary)] font-semibold mb-2">
             Practice
           </p>
-          <h1
-            className="text-3xl font-bold"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
+          <h1 className="text-2xl md:text-3xl font-extrabold" style={{ fontFamily: "'Syne', sans-serif" }}>
             Mock Interviews
           </h1>
         </div>
 
         {error && (
-          <div className="p-3 rounded-lg bg-[var(--danger)]/10 border border-[var(--danger)]/20 text-[var(--danger)] text-sm animate-fade-in-scale">
+          <div className="p-3 rounded-xl bg-[var(--danger)]/10 border border-[var(--danger)]/20 text-[var(--danger)] text-sm animate-fade-in-scale">
             {error}
           </div>
         )}
@@ -82,19 +79,12 @@ export default function MockInterviewsPage() {
         {/* New Mock Interview */}
         <section className="space-y-4 animate-fade-in-up delay-1">
           <div className="flex items-center justify-between">
-            <h2
-              className="text-lg font-semibold"
-              style={{ fontFamily: "'Playfair Display', serif" }}
-            >
+            <h2 className="text-lg font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
               Start a New Interview
             </h2>
             <button
               onClick={() => setShowConfig(!showConfig)}
-              className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                showConfig
-                  ? "bg-[var(--surface)] text-[var(--muted)] hover:text-[var(--foreground)]"
-                  : "btn-shine bg-[var(--primary)] text-white hover:opacity-90 shadow-lg"
-              }`}
+              className={showConfig ? "btn-ghost" : "btn-shine btn-primary"}
             >
               {showConfig ? "Cancel" : "New Mock Interview"}
             </button>
@@ -109,10 +99,7 @@ export default function MockInterviewsPage() {
 
         {/* Past Interviews */}
         <section className="space-y-4 animate-fade-in-up delay-2">
-          <h2
-            className="text-lg font-semibold"
-            style={{ fontFamily: "'Playfair Display', serif" }}
-          >
+          <h2 className="text-lg font-bold" style={{ fontFamily: "'Syne', sans-serif" }}>
             Past Interviews
           </h2>
 
@@ -122,20 +109,15 @@ export default function MockInterviewsPage() {
                 <Link
                   key={mock.id}
                   href={`/sessions/${sessionId}/mock/${mock.id}`}
-                  className={`card-hover block border border-[var(--card-border)] bg-[var(--card)] rounded-2xl p-5 animate-fade-in-up delay-${Math.min(i + 1, 6)}`}
+                  className={`gradient-border block bg-[var(--card)] rounded-2xl p-5 animate-fade-in-up delay-${Math.min(i + 1, 6)}`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center">
-                        <MessageSquare
-                          size={16}
-                          className="text-[var(--primary)]"
-                        />
+                      <div className="w-9 h-9 rounded-lg bg-[var(--accent-glow)] flex items-center justify-center">
+                        <MessageSquare size={16} className="text-[var(--accent)]" />
                       </div>
                       <div>
-                        <span className="font-medium text-sm">
-                          {mock.topics}
-                        </span>
+                        <span className="font-semibold text-sm">{mock.topics}</span>
                         <div className="flex items-center gap-2 text-xs text-[var(--muted)] mt-0.5">
                           <span>{mock.duration}min</span>
                           <span className="w-1 h-1 rounded-full bg-[var(--card-border)]" />
@@ -144,10 +126,10 @@ export default function MockInterviewsPage() {
                       </div>
                     </div>
                     <span
-                      className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                      className={`text-xs px-2.5 py-1 rounded-lg font-semibold ${
                         mock.feedback_report
                           ? "bg-[var(--success)]/10 text-[var(--success)]"
-                          : "bg-[var(--primary-glow)] text-[var(--primary)]"
+                          : "tag-primary"
                       }`}
                     >
                       {mock.feedback_report ? "Reviewed" : "In Progress"}
@@ -171,14 +153,11 @@ export default function MockInterviewsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 border border-dashed border-[var(--card-border)] rounded-2xl bg-[var(--card)]/50">
-              <div className="w-14 h-14 rounded-2xl bg-[var(--primary)]/10 flex items-center justify-center mx-auto mb-4">
-                <MessageSquare size={24} className="text-[var(--primary)]" />
+            <div className="text-center py-16 border border-dashed border-[var(--card-border)] rounded-2xl bg-[var(--card)]">
+              <div className="w-14 h-14 rounded-2xl bg-[var(--accent-glow)] flex items-center justify-center mx-auto mb-4">
+                <MessageSquare size={24} className="text-[var(--accent)]" />
               </div>
-              <h3
-                className="font-bold mb-1"
-                style={{ fontFamily: "'Playfair Display', serif" }}
-              >
+              <h3 className="font-bold mb-1" style={{ fontFamily: "'Syne', sans-serif" }}>
                 No interviews yet
               </h3>
               <p className="text-[var(--muted)] text-sm">
