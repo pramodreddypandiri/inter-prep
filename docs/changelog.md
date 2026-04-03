@@ -4,6 +4,42 @@ All notable changes to InterviewAce are recorded here.
 
 ---
 
+## [Unreleased] — 2026-04-03
+
+### Added — Elevator Pitch Feature
+
+**What it is:** Users can generate a 45–60 second AI elevator pitch tailored to their target role and resume, edit it, record themselves delivering it (video + speech-to-text), receive a scored AI analysis (0–100 across 7 dimensions), replay previous attempts, and share any recording via a public link viewable by anyone.
+
+**Scoring dimensions (7 criteria, 100 pts total):**
+- Opening Hook (15) — grabs attention in first 5–10 seconds
+- Identity Clarity (15) — clear who-you-are statement
+- Value Proposition (20) — what skills/expertise you bring
+- Unique Differentiator (20) — what sets you apart
+- Role Fit (15) — tailored to target role + company
+- Call to Action (10) — clear next step
+- Delivery (5) — timing (≤60s), fluency, minimal fillers
+
+**Frontend:**
+- `/elevator-pitch` — hub page: generate form (target role, company, resume, key strengths), saved pitches list, scoring criteria card
+- `/elevator-pitch/[pitchId]` — pitch detail: editable script with word count + duration estimate; 60s video recorder (MediaRecorder API + Web Speech API transcription, live countdown); analyze button POSTs to backend; FeedbackPanel with score ring + dimension bars; RecordingRow list (replay video, show transcript + feedback, copy share link)
+- `/share/pitch/[token]` — **public page, no auth required** — shows video player, score ring, dimension bars, strengths/improvements
+
+**Backend:**
+- `routers/elevator_pitch.py` — 9 routes: generate (stateless), CRUD for pitches, record upload + AI analysis, list recordings, public share endpoint
+- `services/elevator_pitch_service.py` — `generate_pitch_text()` + `analyze_pitch_recording()` using Claude Sonnet 4
+- `models/elevator_pitch.py` — Pydantic request/response schemas
+
+**Database (migration 003):**
+- `elevator_pitches` table — user_id, pitch_text, target_role, company_name, resume_text
+- `pitch_recordings` table — pitch_id, user_id, video_url, duration_seconds, transcript, score, feedback JSONB, share_token (unique UUID-derived hex token)
+- RLS: users own their pitches/recordings; share endpoint served via service_role key
+
+**Video storage:** Backend uploads recordings to Supabase Storage bucket `pitch-recordings` (must be created as public). Requires no extra frontend changes.
+
+**Tests:** 12 backend service tests, 25 backend router tests, 22 frontend utility tests (`pitch-utils.ts`).
+
+---
+
 ## [Unreleased] — 2026-03-28
 
 ### Changed — "Apex" UI Redesign (full frontend)

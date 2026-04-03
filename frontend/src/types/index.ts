@@ -88,3 +88,50 @@ export interface MockFeedbackReport {
   areas_to_improve: string[];
   overall_rating: string;
 }
+
+// ── Elevator Pitch ────────────────────────────────────────────────────────────
+
+export interface ElevatorPitch {
+  id: string;
+  user_id: string;
+  pitch_text: string;
+  target_role: string;
+  company_name: string;
+  resume_text: string;
+  created_at: string;
+  updated_at: string;
+  recordings?: PitchRecording[];
+}
+
+export interface PitchRecording {
+  id: string;
+  pitch_id: string;
+  user_id?: string;
+  video_url: string | null;
+  duration_seconds: number;
+  transcript: string;
+  score: number | null;
+  feedback: PitchFeedback | null;
+  share_token: string;
+  created_at: string;
+  // Present on share endpoint only
+  target_role?: string;
+  company_name?: string;
+}
+
+export interface PitchFeedback {
+  overall_score: number;
+  dimensions: {
+    opening_hook: number;
+    identity_clarity: number;
+    value_proposition: number;
+    unique_differentiator: number;
+    role_fit: number;
+    call_to_action: number;
+    delivery: number;
+  };
+  strengths: string[];
+  improvements: string[];
+  tailored_suggestions: string[];
+  timing_note: string;
+}

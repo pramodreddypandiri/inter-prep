@@ -29,13 +29,15 @@
       "Bash(venv/bin/python -m pytest tests/ -v)",
       "Bash(npm test:*)",
       "WebSearch",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(git push:*)"
     ],
     "additionalDirectories": [
       "/Users/pramodreddypandiri/Desktop/Projects/inter-prep",
       "/Users/pramodreddypandiri/Desktop/Projects/inter-prep/frontend/src/app/sessions",
       "/Users/pramodreddypandiri/Desktop/Projects/inter-prep/.claude",
-      "/Users/pramodreddypandiri/Desktop/Projects/inter-prep/backend"
+      "/Users/pramodreddypandiri/Desktop/Projects/inter-prep/backend",
+      "/Users/pramodreddypandiri/Desktop/Projects/inter-prep/frontend/src/app/share/pitch"
     ]
   }
 }

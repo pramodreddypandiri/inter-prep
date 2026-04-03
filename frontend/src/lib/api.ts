@@ -134,6 +134,82 @@ export const api = {
   getMockInterview: (sessionId: string, mockId: string) =>
     fetchAPI(`/api/sessions/${sessionId}/mock-interview/${mockId}`),
 
+  // Elevator Pitch
+  generatePitch: (data: {
+    target_role: string;
+    company_name?: string;
+    resume_text?: string;
+    key_strengths?: string;
+  }) =>
+    fetchAPI("/api/elevator-pitch/generate", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  createPitch: (data: {
+    pitch_text: string;
+    target_role: string;
+    company_name?: string;
+    resume_text?: string;
+  }) =>
+    fetchAPI("/api/elevator-pitch", {
+      method: "POST",
+      body: JSON.stringify({ company_name: "", resume_text: "", ...data }),
+    }),
+
+  listPitches: () => fetchAPI("/api/elevator-pitch"),
+
+  getPitch: (pitchId: string) => fetchAPI(`/api/elevator-pitch/${pitchId}`),
+
+  updatePitch: (pitchId: string, data: { pitch_text: string; target_role?: string; company_name?: string }) =>
+    fetchAPI(`/api/elevator-pitch/${pitchId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  deletePitch: (pitchId: string) =>
+    fetchAPI(`/api/elevator-pitch/${pitchId}`, { method: "DELETE" }),
+
+  createRecording: async (
+    pitchId: string,
+    data: { transcript: string; duration_seconds: number; video?: Blob }
+  ) => {
+    const authHeaders = await (async () => {
+      const { createClient } = await import("@/lib/supabase/client");
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Not authenticated");
+      return { Authorization: `Bearer ${session.access_token}` };
+    })();
+
+    const formData = new FormData();
+    formData.append("transcript", data.transcript);
+    formData.append("duration_seconds", String(data.duration_seconds));
+    if (data.video) {
+      formData.append("video", data.video, "recording.webm");
+    }
+
+    const res = await fetch(`${API_URL}/api/elevator-pitch/${pitchId}/recordings`, {
+      method: "POST",
+      headers: authHeaders,
+      body: formData,
+    });
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ detail: "Request failed" }));
+      throw new Error(error.detail || "Request failed");
+    }
+    return res.json();
+  },
+
+  listRecordings: (pitchId: string) =>
+    fetchAPI(`/api/elevator-pitch/${pitchId}/recordings`),
+
+  getSharedRecording: (token: string) =>
+    fetch(`${API_URL}/api/elevator-pitch/share/${token}`).then((r) => {
+      if (!r.ok) throw new Error("Recording not found");
+      return r.json();
+    }),
+
   // Contact
   submitContact: async (data: {
     user_name: string;

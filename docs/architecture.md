@@ -36,6 +36,10 @@ frontend/src/
 │   │   └── callback/route.ts    # Supabase OAuth callback
 │   ├── contact/                 # Contact page
 │   ├── dashboard/               # User sessions list
+│   ├── elevator-pitch/          # Elevator pitch hub (generate + list)
+│   │   └── [pitchId]/           # Pitch detail (editor + recorder + history)
+│   ├── share/
+│   │   └── pitch/[token]/       # Public share page (no auth required)
 │   └── sessions/
 │       └── [id]/
 │           ├── page.tsx         # Session detail
@@ -58,6 +62,8 @@ frontend/src/
 │       └── WebcamMonitor.tsx
 ├── lib/
 │   ├── api.ts                   # Typed fetch wrappers for backend
+│   ├── elevator-pitch/
+│   │   └── pitch-utils.ts       # Pure utilities: duration estimate, score colors, MIME detection
 │   ├── detection/               # Integrity detection system (see below)
 │   └── supabase/
 │       ├── client.ts            # Browser Supabase client
@@ -83,12 +89,14 @@ backend/app/
 │   ├── sessions.py      # CRUD for prep sessions
 │   ├── prep_sources.py  # AI-generated prep material
 │   ├── quiz.py          # Quiz creation + answer submission
-│   ├── mock_interview.py# Mock interview lifecycle + messaging
-│   └── upload.py        # PDF resume parsing
+│   ├── mock_interview.py    # Mock interview lifecycle + messaging
+│   ├── elevator_pitch.py    # Pitch CRUD, recording upload, public share
+│   └── upload.py            # PDF resume parsing
 └── services/
-    ├── ai_service.py        # Claude API integration
-    ├── quiz_service.py      # Question generation + grading
-    └── interview_service.py # Conversational interview logic
+    ├── ai_service.py              # Claude API integration
+    ├── quiz_service.py            # Question generation + grading
+    ├── interview_service.py       # Conversational interview logic
+    └── elevator_pitch_service.py  # Pitch generation + 7-dimension analysis
 ```
 
 ---
@@ -110,6 +118,15 @@ backend/app/
 | `POST` | `/api/sessions/{id}/mock-interview/{mid}/end` | End + get feedback |
 | `POST` | `/api/upload-resume` | Upload PDF resume |
 | `GET` | `/health` | Health check |
+| `POST` | `/api/elevator-pitch/generate` | AI-generate pitch text (stateless) |
+| `POST` | `/api/elevator-pitch` | Save a new pitch |
+| `GET` | `/api/elevator-pitch` | List user's pitches |
+| `GET` | `/api/elevator-pitch/{id}` | Get pitch + recordings |
+| `PUT` | `/api/elevator-pitch/{id}` | Update pitch text/meta |
+| `DELETE` | `/api/elevator-pitch/{id}` | Delete pitch (cascades recordings) |
+| `POST` | `/api/elevator-pitch/{id}/recordings` | Upload recording + run AI analysis |
+| `GET` | `/api/elevator-pitch/{id}/recordings` | List recordings for a pitch |
+| `GET` | `/api/elevator-pitch/share/{token}` | **Public** — get shared recording (no auth) |
 
 ---
 
