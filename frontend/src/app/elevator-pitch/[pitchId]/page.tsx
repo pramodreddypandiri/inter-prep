@@ -443,9 +443,10 @@ export default function PitchDetailPage() {
     recorder.start(100);
 
     // Speech recognition
-    const SpeechRecognitionAPI =
-      (window as unknown as { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition ||
-      (window as unknown as { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
+    type SpeechRecognitionCtor = new () => SpeechRecognition;
+    const SpeechRecognitionAPI: SpeechRecognitionCtor | undefined =
+      (window as unknown as { SpeechRecognition?: SpeechRecognitionCtor; webkitSpeechRecognition?: SpeechRecognitionCtor }).SpeechRecognition ||
+      (window as unknown as { SpeechRecognition?: SpeechRecognitionCtor; webkitSpeechRecognition?: SpeechRecognitionCtor }).webkitSpeechRecognition;
 
     if (SpeechRecognitionAPI) {
       const recog = new SpeechRecognitionAPI();
