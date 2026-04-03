@@ -16,6 +16,7 @@ import {
   MessageSquare,
   Brain,
   ArrowRight,
+  Mic,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -88,10 +89,16 @@ export default function DashboardPage() {
                   : "Start your first interview prep session"}
               </p>
             </div>
-            <Link href="/sessions/new" className="btn-shine btn-primary shrink-0">
-              <Plus size={15} strokeWidth={2.5} />
-              New Session
-            </Link>
+            <div className="flex items-center gap-2 shrink-0">
+              <Link href="/elevator-pitch" className="btn-shine btn-secondary flex items-center gap-1.5">
+                <Mic size={15} strokeWidth={2.5} />
+                Elevator Pitch
+              </Link>
+              <Link href="/sessions/new" className="btn-shine btn-primary flex items-center gap-1.5">
+                <Plus size={15} strokeWidth={2.5} />
+                New Session
+              </Link>
+            </div>
           </div>
         </div>
 
