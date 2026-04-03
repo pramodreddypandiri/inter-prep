@@ -36,8 +36,10 @@ export async function updateSession(request: NextRequest) {
   // Redirect unauthenticated users to login (except for auth pages and home)
   const isAuthPage = request.nextUrl.pathname.startsWith("/auth");
   const isHomePage = request.nextUrl.pathname === "/";
+  const isAdminPage = request.nextUrl.pathname.startsWith("/admin");
+  const isSharePage = request.nextUrl.pathname.startsWith("/share");
 
-  if (!user && !isAuthPage && !isHomePage) {
+  if (!user && !isAuthPage && !isHomePage && !isAdminPage && !isSharePage) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/login";
     return NextResponse.redirect(url);

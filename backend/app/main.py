@@ -9,7 +9,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.config import FRONTEND_URL, ALLOWED_ORIGINS, CORS_ALLOW_VERCEL_PREVIEWS
 from app.database import get_supabase
-from app.routers import sessions, prep_sources, upload, quiz, mock_interview, contact, elevator_pitch
+from app.routers import sessions, prep_sources, upload, quiz, mock_interview, contact, elevator_pitch, admin_newsletter
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +64,7 @@ app.include_router(quiz.router)
 app.include_router(mock_interview.router)
 app.include_router(contact.router)
 app.include_router(elevator_pitch.router)
+app.include_router(admin_newsletter.router)
 
 
 @app.get("/health")
