@@ -16,3 +16,5 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_LOGIN = os.getenv("SMTP_LOGIN", "")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
 CONTACT_EMAIL = os.getenv("CONTACT_EMAIL", "pramodreddypandiri010@gmail.com")
+FROM_EMAIL = os.getenv("FROM_EMAIL", "")  # Verified sender address in Brevo
+ADMIN_SECRET = os.getenv("ADMIN_SECRET", "")
