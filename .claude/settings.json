@@ -30,7 +30,11 @@
       "Bash(npm test:*)",
       "WebSearch",
       "Bash(npm run:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(head -300 /Users/pramodreddypandiri/Desktop/Projects/inter-prep/frontend/src/app/sessions/[id]/mock/[mockId]/page.tsx)",
+      "Bash(git diff:*)",
+      "Bash(grep -A 8 \"^function scoreColor\" /Users/pramodreddypandiri/Desktop/Projects/inter-prep/frontend/src/app/elevator-pitch/[pitchId]/page.tsx)",
+      "Bash(grep -B 5 -A 5 \"duration-500\" /Users/pramodreddypandiri/Desktop/Projects/inter-prep/frontend/src/app/share/pitch/[token]/page.tsx)"
     ],
     "additionalDirectories": [
       "/Users/pramodreddypandiri/Desktop/Projects/inter-prep",

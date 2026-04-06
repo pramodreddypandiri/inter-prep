@@ -182,6 +182,7 @@ export default function PreparePage() {
             {prepSource ? (
               <div className="space-y-5 animate-fade-in-up">
                 {/* Section sub-tabs */}
+                <div className="relative">
                 <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
                   {SECTION_META.map(({ key, label, icon: Icon }) => (
                     <button
@@ -197,6 +198,9 @@ export default function PreparePage() {
                       {label}
                     </button>
                   ))}
+                </div>
+                {/* Scroll fade indicator */}
+                <div className="absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-[var(--background)] to-transparent pointer-events-none" />
                 </div>
 
                 {/* Active section content */}

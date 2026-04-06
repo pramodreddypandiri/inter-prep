@@ -68,17 +68,16 @@ type InterviewState =
 
 // ─── Focus Score Indicator (reframed from "Risk") ───
 
+function focusColor(focusScore: number): string {
+  if (focusScore >= 75) return "var(--success)";
+  if (focusScore >= 50) return "var(--warning)";
+  if (focusScore >= 25) return "#fb923c"; // orange-400, no semantic token
+  return "var(--danger)";
+}
+
 function FocusIndicator({ score, flags }: { score: number; flags: string[] }) {
   // Invert: 100 - riskScore = focus score (higher = better)
   const focusScore = Math.max(0, 100 - score);
-  const color =
-    focusScore >= 75
-      ? "text-emerald-400"
-      : focusScore >= 50
-      ? "text-amber-400"
-      : focusScore >= 25
-      ? "text-orange-400"
-      : "text-rose-400";
   const label =
     focusScore >= 75
       ? "Great"
@@ -88,11 +87,12 @@ function FocusIndicator({ score, flags }: { score: number; flags: string[] }) {
       ? "Fair"
       : "Needs Work";
 
+  const color = focusColor(focusScore);
   return (
     <div className="relative group">
       <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/40 border border-white/10 cursor-default">
-        <Focus size={12} className={color} />
-        <span className={`text-[10px] font-mono font-bold ${color}`}>
+        <Focus size={12} style={{ color }} />
+        <span className="text-[10px] font-mono font-bold" style={{ color }}>
           {focusScore}
         </span>
         <span className="text-[9px] text-white/40">{label}</span>
@@ -113,10 +113,8 @@ function FocusIndicator({ score, flags }: { score: number; flags: string[] }) {
           </div>
           <div className="mt-2.5 h-1 bg-white/5 rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                focusScore >= 75 ? "bg-emerald-400" : focusScore >= 50 ? "bg-amber-400" : "bg-orange-400"
-              }`}
-              style={{ width: `${focusScore}%` }}
+              className="h-full rounded-full transition-all duration-500"
+              style={{ width: `${focusScore}%`, background: color }}
             />
           </div>
         </div>
@@ -163,15 +161,8 @@ function PresenceReport({
       {/* Overall focus score */}
       <div className="flex items-center gap-4">
         <div
-          className={`text-3xl font-bold font-mono ${
-            focusScore >= 75
-              ? "text-emerald-400"
-              : focusScore >= 50
-              ? "text-amber-400"
-              : focusScore >= 25
-              ? "text-orange-400"
-              : "text-rose-400"
-          }`}
+          className="text-3xl font-bold font-mono"
+          style={{ color: focusColor(focusScore) }}
         >
           {focusScore}
         </div>
@@ -227,8 +218,7 @@ function PresenceReport({
                   className="flex-1 rounded-t-sm transition-all"
                   style={{
                     height: `${Math.max(2, focus)}%`,
-                    backgroundColor:
-                      focus >= 75 ? "#34d399" : focus >= 50 ? "#fbbf24" : focus >= 25 ? "#fb923c" : "#fb7185",
+                    backgroundColor: focusColor(focus),
                     opacity: 0.7,
                   }}
                   title={`Focus: ${focus} at ${new Date(snap.timestamp).toLocaleTimeString()}`}
@@ -890,12 +880,12 @@ export default function MockInterviewPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => { if (isMuted) { setIsMuted(false); if (interviewState === "candidate_turn") startRecording(); } else { toggleMute(); } }}
+            aria-label={isMuted ? "Unmute microphone" : "Mute microphone"}
             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
               isMuted ? "bg-rose-500 hover:bg-rose-600 shadow-lg shadow-rose-500/20" : "bg-[#141420] hover:bg-[#1c1c30] border border-[#25253a]"
             }`}
-            title={isMuted ? "Unmute" : "Mute"}
           >
-            {isMuted ? <MicOff size={18} /> : <Mic size={18} />}
+            {isMuted ? <MicOff size={18} aria-hidden="true" /> : <Mic size={18} aria-hidden="true" />}
           </button>
 
           {isRecording && !isMuted && (
@@ -918,21 +908,22 @@ export default function MockInterviewPage() {
 
           <button
             onClick={() => setShowCaptions((c) => !c)}
+            aria-label={showCaptions ? "Hide captions" : "Show captions"}
+            aria-pressed={showCaptions}
             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all border ${
               showCaptions ? "bg-[#141420] border-[#25253a] hover:bg-[#1c1c30]" : "bg-transparent border-[#1e2030] hover:bg-[#141420]"
             }`}
-            title={showCaptions ? "Hide captions" : "Show captions"}
           >
-            {showCaptions ? <Captions size={18} /> : <CaptionsOff size={18} />}
+            {showCaptions ? <Captions size={18} aria-hidden="true" /> : <CaptionsOff size={18} aria-hidden="true" />}
           </button>
 
           <button
             onClick={handleEndInterview}
             disabled={interviewState === "processing"}
+            aria-label="Leave interview"
             className="w-14 h-12 bg-rose-500 rounded-full flex items-center justify-center hover:bg-rose-600 transition-all disabled:opacity-50 shadow-lg shadow-rose-500/20"
-            title="Leave interview"
           >
-            <PhoneOff size={18} />
+            <PhoneOff size={18} aria-hidden="true" />
           </button>
         </div>
 
@@ -941,12 +932,13 @@ export default function MockInterviewPage() {
           {micPermission === "pending" && <span className="text-[10px] text-amber-400/80">Requesting mic...</span>}
           <button
             onClick={() => setShowChat((c) => !c)}
+            aria-label={showChat ? "Close transcript" : "Open transcript"}
+            aria-pressed={showChat}
             className={`w-12 h-12 rounded-full flex items-center justify-center transition-all border ${
               showChat ? "bg-[var(--primary)] border-[var(--primary)] shadow-lg shadow-[var(--primary)]/20" : "bg-[#141420] border-[#25253a] hover:bg-[#1c1c30]"
             }`}
-            title="Transcript"
           >
-            <MessageSquare size={18} />
+            <MessageSquare size={18} aria-hidden="true" />
           </button>
         </div>
       </div>

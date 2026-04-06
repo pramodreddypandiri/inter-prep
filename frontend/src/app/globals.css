@@ -12,15 +12,17 @@
   --foreground: #111816;
   --primary: #059669;
   --primary-hover: #047857;
-  --primary-glow: rgba(5, 150, 105, 0.12);
+  --primary-glow: rgba(5, 150, 105, 0.18);
   --accent: #059669;
-  --accent-glow: rgba(5, 150, 105, 0.10);
+  --accent-glow: rgba(5, 150, 105, 0.14);
   --card: #ffffff;
   --card-border: #d1e7dd;
-  --card-hover: #f0faf5;
+  --card-hover: #edf5f0;
   --muted: #5f7a6e;
   --danger: #e11d48;
   --success: #059669;
+  --warning: #f59e0b;
+  --warning-glow: rgba(245, 158, 11, 0.12);
   --surface: #ecf5f0;
   --surface-2: #f4faf7;
 }
@@ -40,6 +42,8 @@
     --muted: #7a9b8c;
     --danger: #fb3b5e;
     --success: #34d399;
+    --warning: #fbbf24;
+    --warning-glow: rgba(251, 191, 36, 0.10);
     --surface: #0c1510;
     --surface-2: #0f1a14;
   }
@@ -217,6 +221,15 @@ h1, h2, h3, h4 {
   background: color-mix(in srgb, var(--card) 80%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+}
+
+@media (prefers-color-scheme: light) {
+  .glass {
+    background: color-mix(in srgb, var(--card) 88%, transparent);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+  .orb-primary { opacity: 0.12; }
+  .orb-accent  { opacity: 0.08; }
 }
 
 /* ---- Button Shine Effect ---- */
@@ -454,6 +467,33 @@ h1, h2, h3, h4 {
   pointer-events: none;
 }
 
+/* ---- Secondary Button ---- */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 1.125rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  border: 1px solid var(--card-border);
+  background: var(--surface);
+  color: var(--foreground);
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  cursor: pointer;
+}
+.btn-secondary:hover {
+  border-color: var(--primary);
+  background: var(--primary-glow);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+.btn-secondary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* ---- Ghost Button ---- */
 .btn-ghost {
   display: inline-flex;
@@ -487,4 +527,37 @@ h1, h2, h3, h4 {
 .orb-accent {
   background: var(--primary);
   opacity: 0.04;
+}
+
+/* ======================================================
+   REDUCED MOTION — respect OS accessibility preference
+   ====================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .gradient-mesh {
+    animation: none;
+    background: var(--background);
+  }
+
+  .orb,
+  .orb-primary,
+  .orb-accent {
+    animation: none;
+  }
+
+  .btn-shine::after {
+    display: none;
+  }
+
+  .gradient-border::before {
+    animation: none;
+  }
 }
