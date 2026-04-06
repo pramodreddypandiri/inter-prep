@@ -35,7 +35,7 @@ function scoreColor(score: number | null): string {
   if (score === null) return "var(--muted)";
   if (score >= 80) return "var(--success)";
   if (score >= 60) return "var(--accent)";
-  if (score >= 40) return "#f59e0b";
+  if (score >= 40) return "var(--warning)";
   return "var(--danger)";
 }
 
@@ -51,21 +51,21 @@ function ScoreRing({ score }: { score: number | null }) {
   const r = 36;
   const circ = 2 * Math.PI * r;
   const pct = score !== null ? score / 100 : 0;
+  const color = scoreColor(score);
   return (
     <svg width="92" height="92" viewBox="0 0 92 92">
-      <circle cx="46" cy="46" r={r} fill="none" stroke="var(--card-border)" strokeWidth="6" />
+      <circle cx="46" cy="46" r={r} fill="none" style={{ stroke: "var(--card-border)" }} strokeWidth="6" />
       <circle
         cx="46"
         cy="46"
         r={r}
         fill="none"
-        stroke={scoreColor(score)}
         strokeWidth="6"
         strokeDasharray={circ}
         strokeDashoffset={circ * (1 - pct)}
         strokeLinecap="round"
         transform="rotate(-90 46 46)"
-        style={{ transition: "stroke-dashoffset 0.6s ease" }}
+        style={{ stroke: color, transition: "stroke-dashoffset 0.6s ease" }}
       />
       <text
         x="46"
@@ -73,8 +73,8 @@ function ScoreRing({ score }: { score: number | null }) {
         textAnchor="middle"
         fontSize="18"
         fontWeight="bold"
-        fill={scoreColor(score)}
         fontFamily="'Syne', sans-serif"
+        style={{ fill: color }}
       >
         {score !== null ? score : "—"}
       </text>
@@ -594,7 +594,7 @@ export default function PitchDetailPage() {
 
         <div className="grid lg:grid-cols-2 gap-6">
           {/* ── Left: Pitch editor ─────────────────────────────── */}
-          <div className="space-y-4">
+          <div className="space-y-4 order-2 lg:order-1">
             <div className="gradient-border bg-[var(--card)] rounded-2xl p-5">
               <div className="flex items-center justify-between mb-3">
                 <h2
@@ -609,19 +609,22 @@ export default function PitchDetailPage() {
                       ~{estimatedSecs}s · {wordCount} words
                     </span>
                   )}
-                  <label className="flex items-center gap-2 cursor-pointer select-none" title={scriptHidden ? "Show script" : "Hide script"}>
+                  <div className="flex items-center gap-2">
                     <span className="text-xs text-[var(--muted)]">Hide</span>
-                    <span
+                    <button
+                      role="switch"
+                      aria-checked={scriptHidden}
+                      aria-label="Hide pitch script to practice from memory"
                       onClick={() => setScriptHidden((p) => !p)}
-                      className="relative inline-flex items-center w-9 h-5 rounded-full transition-colors duration-200"
+                      className="relative inline-flex items-center w-9 h-5 rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"
                       style={{ background: scriptHidden ? "var(--primary)" : "var(--card-border)" }}
                     >
                       <span
                         className="inline-block w-3.5 h-3.5 bg-white rounded-full shadow transition-transform duration-200"
                         style={{ transform: scriptHidden ? "translateX(18px)" : "translateX(3px)" }}
                       />
-                    </span>
-                  </label>
+                    </button>
+                  </div>
                 </div>
               </div>
               {scriptHidden ? (
@@ -634,7 +637,7 @@ export default function PitchDetailPage() {
                     value={editedText}
                     onChange={(e) => setEditedText(e.target.value)}
                     rows={12}
-                    className="w-full px-3 py-3 rounded-xl border border-[var(--card-border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--primary)] transition-colors resize-none leading-relaxed"
+                    className="input-base resize-none leading-relaxed"
                   />
                   <div className="flex items-center justify-between mt-3">
                     <p className="text-xs text-[var(--muted)]">
@@ -669,7 +672,7 @@ export default function PitchDetailPage() {
           </div>
 
           {/* ── Right: Recorder ────────────────────────────────── */}
-          <div className="space-y-4">
+          <div className="space-y-4 order-1 lg:order-2">
             <div className="gradient-border bg-[var(--card)] rounded-2xl p-5">
               <h2
                 className="font-bold text-base mb-4"
@@ -776,9 +779,9 @@ export default function PitchDetailPage() {
                         setPreviewUrl(null);
                       }}
                       className="btn-secondary px-3"
-                      title="Re-record"
+                      aria-label="Re-record"
                     >
-                      <RotateCcw size={14} />
+                      <RotateCcw size={14} aria-hidden="true" />
                     </button>
                   </>
                 )}

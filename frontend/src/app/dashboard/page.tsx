@@ -144,24 +144,41 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : sessions.length === 0 ? (
-          <div className="animate-fade-in-up text-center py-20 border border-dashed border-[var(--card-border)] rounded-2xl bg-[var(--card)]">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--primary-glow)] to-[var(--primary-glow)] flex items-center justify-center mx-auto mb-5">
-              <Sparkles size={28} className="text-[var(--primary)]" />
+          <div className="animate-fade-in-up space-y-4">
+            {/* Primary CTA card */}
+            <div className="text-center py-14 border border-dashed border-[var(--card-border)] rounded-2xl bg-[var(--card)]">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--primary-glow)] to-[var(--primary-glow)] flex items-center justify-center mx-auto mb-5">
+                <Sparkles size={28} className="text-[var(--primary)]" />
+              </div>
+              <h2
+                className="text-xl font-bold mb-2"
+                style={{ fontFamily: "'Syne', sans-serif" }}
+              >
+                Welcome to InterviewAce
+              </h2>
+              <p className="text-[var(--muted)] text-sm mb-2 max-w-sm mx-auto">
+                Create a session for the role you're interviewing for. We'll generate
+                prep materials, quizzes, and a mock interview — all tailored to that role.
+              </p>
+              {/* Feature steps */}
+              <div className="flex items-center justify-center gap-2 text-xs text-[var(--muted)] mb-6">
+                <span className="flex items-center gap-1"><span className="w-5 h-5 rounded-full bg-[var(--primary)] text-white flex items-center justify-center font-bold text-[10px]">1</span> Create session</span>
+                <span className="text-[var(--card-border)]">→</span>
+                <span className="flex items-center gap-1"><span className="w-5 h-5 rounded-full bg-[var(--surface)] border border-[var(--card-border)] flex items-center justify-center font-bold text-[10px]">2</span> Prep &amp; quiz</span>
+                <span className="text-[var(--card-border)]">→</span>
+                <span className="flex items-center gap-1"><span className="w-5 h-5 rounded-full bg-[var(--surface)] border border-[var(--card-border)] flex items-center justify-center font-bold text-[10px]">3</span> Mock interview</span>
+              </div>
+              <div className="flex items-center justify-center gap-3">
+                <Link href="/sessions/new" className="btn-shine btn-primary">
+                  <Plus size={16} aria-hidden="true" />
+                  Create Your First Session
+                </Link>
+                <Link href="/elevator-pitch" className="btn-ghost">
+                  <Mic size={15} aria-hidden="true" />
+                  Try Elevator Pitch
+                </Link>
+              </div>
             </div>
-            <h2
-              className="text-xl font-bold mb-2"
-              style={{ fontFamily: "'Syne', sans-serif" }}
-            >
-              No sessions yet
-            </h2>
-            <p className="text-[var(--muted)] text-sm mb-6 max-w-sm mx-auto">
-              Create your first interview session to start preparing with
-              AI-powered research and practice.
-            </p>
-            <Link href="/sessions/new" className="btn-shine btn-primary">
-              <Plus size={16} />
-              Create Your First Session
-            </Link>
           </div>
         ) : (
           <>
@@ -233,9 +250,10 @@ export default function DashboardPage() {
                   <div className="pt-3 mt-3 border-t border-[var(--card-border)]">
                     <button
                       onClick={() => handleDelete(session.id)}
+                      aria-label={`Delete session: ${session.name}`}
                       className="flex items-center gap-1.5 text-xs text-[var(--muted)] hover:text-[var(--danger)] transition-colors"
                     >
-                      <Trash2 size={12} />
+                      <Trash2 size={12} aria-hidden="true" />
                       Delete
                     </button>
                   </div>

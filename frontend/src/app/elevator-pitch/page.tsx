@@ -143,7 +143,7 @@ export default function ElevatorPitchPage() {
                       value={targetRole}
                       onChange={(e) => setTargetRole(e.target.value)}
                       placeholder="e.g. Senior Software Engineer, Product Manager"
-                      className="w-full px-3 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--primary)] transition-colors"
+                      className="input-base"
                     />
                   </div>
 
@@ -156,7 +156,7 @@ export default function ElevatorPitchPage() {
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       placeholder="e.g. Google, Stripe"
-                      className="w-full px-3 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--primary)] transition-colors"
+                      className="input-base"
                     />
                   </div>
 
@@ -169,7 +169,7 @@ export default function ElevatorPitchPage() {
                       onChange={(e) => setKeyStrengths(e.target.value)}
                       rows={2}
                       placeholder="e.g. 5 years backend experience, led 10-person team, shipped ML product..."
-                      className="w-full px-3 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
+                      className="input-base resize-none"
                     />
                   </div>
 
@@ -182,7 +182,7 @@ export default function ElevatorPitchPage() {
                       onChange={(e) => setResumeText(e.target.value)}
                       rows={4}
                       placeholder="Paste resume text or relevant experience..."
-                      className="w-full px-3 py-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--primary)] transition-colors resize-none"
+                      className="input-base resize-none"
                     />
                   </div>
 
@@ -239,7 +239,7 @@ export default function ElevatorPitchPage() {
                   value={generatedText}
                   onChange={(e) => setGeneratedText(e.target.value)}
                   rows={8}
-                  className="w-full px-3 py-3 rounded-xl border border-[var(--card-border)] bg-[var(--background)] text-sm focus:outline-none focus:border-[var(--primary)] transition-colors resize-none leading-relaxed"
+                  className="input-base resize-none leading-relaxed"
                 />
 
                 <p className="text-xs text-[var(--muted)] mt-2">
@@ -360,9 +360,10 @@ export default function ElevatorPitchPage() {
                     </Link>
                     <button
                       onClick={() => handleDelete(pitch.id)}
+                      aria-label={`Delete pitch for ${pitch.target_role}`}
                       className="text-[var(--muted)] hover:text-[var(--danger)] transition-colors p-1"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={14} aria-hidden="true" />
                     </button>
                   </div>
                 </div>

@@ -16,6 +16,15 @@ export default function InterviewerAvatar({
   const [mouthOpen, setMouthOpen] = useState(false);
   const [blinking, setBlinking] = useState(false);
   const [breatheUp, setBreatheUp] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   const mouthTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const blinkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -111,7 +120,7 @@ export default function InterviewerAvatar({
   return (
     <div className="relative flex flex-col items-center select-none">
       {/* Outer speaking halo rings */}
-      {isSpeaking && (
+      {isSpeaking && !reducedMotion && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div
             className="absolute rounded-full border border-[var(--primary)]/20 animate-ping"
@@ -129,8 +138,8 @@ export default function InterviewerAvatar({
         width="260"
         height="325"
         style={{
-          transform: breatheUp ? "translateY(-3px)" : "translateY(0px)",
-          transition: "transform 3.2s ease-in-out, filter 0.5s ease",
+          transform: !reducedMotion && breatheUp ? "translateY(-3px)" : "translateY(0px)",
+          transition: reducedMotion ? "none" : "transform 3.2s ease-in-out, filter 0.5s ease",
           filter: isSpeaking
             ? "drop-shadow(0 0 20px rgba(16,185,129,0.28))"
             : "drop-shadow(0 10px 28px rgba(0,0,0,0.55))",
@@ -503,7 +512,7 @@ export default function InterviewerAvatar({
             stroke="var(--primary)"
             strokeWidth="2.5"
             opacity="0.35"
-            className="animate-pulse"
+            className={reducedMotion ? "" : "animate-pulse"}
           />
         )}
       </svg>
@@ -517,7 +526,7 @@ export default function InterviewerAvatar({
           Alex
         </p>
         {isSpeaking ? (
-          <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--primary)] animate-pulse mt-0.5">
+          <p className={`text-[9px] tracking-[0.2em] uppercase text-[var(--primary)] mt-0.5 ${reducedMotion ? "" : "animate-pulse"}`}>
             Speaking
           </p>
         ) : (

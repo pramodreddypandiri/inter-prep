@@ -13,6 +13,8 @@ import {
   Briefcase,
   FileText,
   ArrowLeft,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 export default function SessionDetailPage() {
@@ -21,6 +23,7 @@ export default function SessionDetailPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [jdExpanded, setJdExpanded] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -107,9 +110,17 @@ export default function SessionDetailPage() {
               </div>
               Job Description
             </h3>
-            <p className="text-sm text-[var(--muted)] line-clamp-6 leading-relaxed">
+            <p className={`text-sm text-[var(--muted)] leading-relaxed ${jdExpanded ? "" : "line-clamp-6"}`}>
               {session.jd_text}
             </p>
+            {session.jd_text && session.jd_text.length > 300 && (
+              <button
+                onClick={() => setJdExpanded((v) => !v)}
+                className="mt-2 flex items-center gap-1 text-xs text-[var(--primary)] hover:underline font-semibold"
+              >
+                {jdExpanded ? <><ChevronUp size={13} /> Show less</> : <><ChevronDown size={13} /> Show more</>}
+              </button>
+            )}
           </div>
         </div>
 

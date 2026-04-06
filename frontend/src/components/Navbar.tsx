@@ -55,9 +55,10 @@ export default function Navbar() {
           </Link>
           <button
             onClick={handleSignOut}
+            aria-label="Sign out"
             className="flex items-center gap-1.5 px-3 py-2 text-[var(--muted)] hover:text-[var(--foreground)] rounded-lg hover:bg-[var(--surface)] transition-all text-sm ml-0.5"
           >
-            <LogOut size={15} />
+            <LogOut size={15} aria-hidden="true" />
           </button>
         </div>
 
@@ -65,9 +66,10 @@ export default function Navbar() {
         <div className="flex md:hidden items-center gap-2">
           <Link
             href="/sessions/new"
+            aria-label="New session"
             className="btn-primary !py-2 !px-3 !text-xs"
           >
-            <Plus size={14} strokeWidth={2.5} />
+            <Plus size={14} strokeWidth={2.5} aria-hidden="true" />
           </Link>
           <button
             onClick={() => setMobileOpen(!mobileOpen)}

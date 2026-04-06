@@ -1,6 +1,5 @@
 # InterviewAce — Claude Code Instructions
-## Instructons - MUST DO
- - run '/compact' when context window is 50% full. 
+ - run '/compact' when context window is 50 percent full. 
 ## Docs Policy
 
 **After every major change, update the files in `docs/`.**

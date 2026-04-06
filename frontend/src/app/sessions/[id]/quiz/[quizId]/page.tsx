@@ -318,7 +318,7 @@ export default function QuizPage() {
 
           {/* Input mode toggle */}
           <div className="flex items-center gap-2">
-            <span className="text-[10px] tracking-wide uppercase text-[var(--muted)] font-semibold">
+            <span className="text-xs tracking-wide uppercase text-[var(--muted)] font-semibold">
               Answer with:
             </span>
             <button
@@ -358,7 +358,7 @@ export default function QuizPage() {
               <VoiceRecorder onTranscript={handleVoiceTranscript} />
               {currentAnswer && (
                 <div>
-                  <label className="text-[10px] font-semibold tracking-wide uppercase text-[var(--muted)] block mb-2">
+                  <label className="text-xs font-semibold tracking-wide uppercase text-[var(--muted)] block mb-2">
                     Transcribed answer (editable):
                   </label>
                   <textarea
@@ -406,23 +406,32 @@ export default function QuizPage() {
         </div>
 
         {/* Question dots */}
-        <div className="flex justify-center gap-2 flex-wrap animate-fade-in delay-3">
-          {questions.map((q, i) => (
-            <button
-              key={q.id}
-              onClick={() => setCurrentIndex(i)}
-              className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${
-                i === currentIndex
-                  ? "bg-[var(--primary)] text-white shadow-md shadow-[var(--primary-glow)]"
-                  : (answers[q.id] || "").trim()
-                  ? "tag-primary"
-                  : "bg-[var(--surface)] text-[var(--muted)] border border-[var(--card-border)]"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
+        {questions.length <= 10 ? (
+          <div className="flex justify-center gap-2 animate-fade-in delay-3">
+            {questions.map((q, i) => (
+              <button
+                key={q.id}
+                onClick={() => setCurrentIndex(i)}
+                className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${
+                  i === currentIndex
+                    ? "bg-[var(--primary)] text-white shadow-md shadow-[var(--primary-glow)]"
+                    : (answers[q.id] || "").trim()
+                    ? "tag-primary"
+                    : "bg-[var(--surface)] text-[var(--muted)] border border-[var(--card-border)]"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-[var(--muted)] text-center animate-fade-in delay-3">
+            Question <span className="font-bold text-[var(--foreground)]">{currentIndex + 1}</span> / {questions.length}
+            {answeredCount > 0 && (
+              <span className="ml-2 text-[var(--primary)] font-semibold">({answeredCount} answered)</span>
+            )}
+          </p>
+        )}
       </main>
     </div>
   );
