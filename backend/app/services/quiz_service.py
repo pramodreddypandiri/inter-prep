@@ -1,6 +1,9 @@
 import json
 
 from app.services.ai_service import _call_claude_json, _cap
+from app.utils.prompt_guard import sanitize, wrap, SYSTEM_GUARD
+
+_ANSWER_CAP = 2_000   # quiz answers are short by design
 
 
 async def generate_quiz_questions(
@@ -20,10 +23,12 @@ async def generate_quiz_questions(
         # Extract topics from JD and round description
         topics_source = f"Topics extracted from JD: {_cap(jd_text, 300)}\nRound: {_cap(round_description, 300)}"
 
-    prompt = f"""You are a technical interviewer generating short, focused quiz questions to test a candidate's understanding of core concepts.
+    prompt = f"""{SYSTEM_GUARD}
+
+You are a technical interviewer generating short, focused quiz questions to test a candidate's understanding of core concepts.
 
 ## Topics to quiz on:
-{_cap(topics_source, 2000)}
+{wrap("topics", sanitize(topics_source, 2000))}
 
 Generate exactly {num_questions} short, direct technical questions. Follow these rules strictly:
 
@@ -57,10 +62,18 @@ async def evaluate_quiz_answers(
 ) -> dict:
     """Evaluate all quiz answers and generate comprehensive feedback."""
 
-    prompt = f"""You are a technical interviewer evaluating concise answers to concept-focused questions.
+    # Sanitize each answer — this is the primary injection surface for the quiz.
+    safe_qa = [
+        {"question": q, "answer": sanitize(a, _ANSWER_CAP)}
+        for q, a in zip(questions, answers)
+    ]
+
+    prompt = f"""{SYSTEM_GUARD}
+
+You are a technical interviewer evaluating concise answers to concept-focused questions.
 
 ## Questions and Answers:
-{json.dumps([{"question": q, "answer": a} for q, a in zip(questions, answers)])}
+{json.dumps(safe_qa)}
 
 Evaluate each answer for:
 - Technical accuracy — is the core concept correct?

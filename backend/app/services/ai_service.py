@@ -9,6 +9,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 
 from app.config import ANTHROPIC_API_KEY
 from app.services.json_utils import extract_json
+from app.utils.prompt_guard import sanitize, wrap, SYSTEM_GUARD
 
 logger = logging.getLogger(__name__)
 
@@ -83,19 +84,21 @@ async def generate_prep_sources(
 ) -> dict:
     """Generate preparation sources using Claude API."""
 
-    prompt = f"""You are an expert interview preparation coach. Based on the following information about a candidate and their target role, generate a comprehensive preparation guide.
+    prompt = f"""{SYSTEM_GUARD}
+
+You are an expert interview preparation coach. Based on the following information about a candidate and their target role, generate a comprehensive preparation guide.
 
 ## Candidate's Resume:
-{_cap(resume_text)}
+{wrap("resume", sanitize(resume_text))}
 
 ## Job Description:
-{_cap(jd_text)}
+{wrap("job_description", sanitize(jd_text))}
 
 ## Target Company:
-{_cap(company_name, 500)}
+{wrap("company", sanitize(company_name, 500))}
 
 ## Interview Round Description:
-{_cap(round_description, 5000)}
+{wrap("round_description", sanitize(round_description, 5000))}
 
 Generate a structured preparation guide with the following sections. Use markdown formatting within each section for readability.
 
@@ -125,19 +128,21 @@ async def regenerate_prep_section(
     section_desc = SECTION_DESCRIPTIONS.get(section_key, section_key)
     section_label = section_key.replace("_", " ").title()
 
-    prompt = f"""You are an expert interview preparation coach. Regenerate ONLY the "{section_label}" section of an interview preparation guide.
+    prompt = f"""{SYSTEM_GUARD}
+
+You are an expert interview preparation coach. Regenerate ONLY the "{section_label}" section of an interview preparation guide.
 
 ## Candidate's Resume:
-{_cap(resume_text)}
+{wrap("resume", sanitize(resume_text))}
 
 ## Job Description:
-{_cap(jd_text)}
+{wrap("job_description", sanitize(jd_text))}
 
 ## Target Company:
-{_cap(company_name, 500)}
+{wrap("company", sanitize(company_name, 500))}
 
 ## Interview Round Description:
-{_cap(round_description, 5000)}
+{wrap("round_description", sanitize(round_description, 5000))}
 
 Generate content for: **{section_label}**
 Description: {section_desc}

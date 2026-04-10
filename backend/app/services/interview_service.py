@@ -1,8 +1,13 @@
 import json
 
 from app.services.ai_service import _call_claude, _call_claude_json, _cap
+from app.utils.prompt_guard import sanitize, wrap, SYSTEM_GUARD
 
-INTERVIEWER_SYSTEM_PROMPT = """You are a professional interviewer conducting a real interview. Follow these rules strictly:
+# Candidate answers are capped tighter than resumes — they arrive in real-time
+# and there is no legitimate reason for a spoken answer to be very long.
+_ANSWER_CAP = 2_000
+
+INTERVIEWER_SYSTEM_PROMPT = f"""You are a professional interviewer conducting a real interview. Follow these rules strictly:
 
 1. NEVER give feedback, hints, or corrections during the interview.
 2. Act as a neutral, professional interviewer — no encouragement or discouragement.
@@ -13,7 +18,9 @@ INTERVIEWER_SYSTEM_PROMPT = """You are a professional interviewer conducting a r
 7. Cover the specified topics and difficulty level appropriately.
 8. When the interview time is up or you've covered enough ground, thank the candidate and end the session.
 
-Respond with ONLY your interviewer dialogue. No meta-commentary."""
+Respond with ONLY your interviewer dialogue. No meta-commentary.
+
+{SYSTEM_GUARD}"""
 
 
 async def generate_first_question(
@@ -31,14 +38,14 @@ async def generate_first_question(
     prompt = f"""You are about to start a mock interview. Here is the context:
 
 ## Candidate's Resume:
-{_cap(resume_text)}
+{wrap("resume", sanitize(resume_text))}
 
 ## Job Description:
-{_cap(jd_text)}
+{wrap("job_description", sanitize(jd_text))}
 
-## Company: {_cap(company_name, 500)}
-## Round Description: {_cap(round_description, 5000)}
-## Focus Topics: {_cap(topics, 2000)}
+## Company: {wrap("company", sanitize(company_name, 500))}
+## Round Description: {wrap("round_description", sanitize(round_description, 5000))}
+## Focus Topics: {wrap("topics", sanitize(topics, 2000))}
 ## Duration: {duration} minutes
 ## Difficulty: {difficulty}
 
@@ -65,13 +72,18 @@ async def generate_interviewer_response(
 ) -> dict:
     """Generate the next interviewer response based on the conversation so far."""
 
-    # Build conversation messages for Claude
+    # Build conversation messages for Claude.
+    # Candidate turns are sanitized — they are live speech transcriptions and
+    # the most direct injection surface.
     messages = []
     for entry in transcript:
         if entry["role"] == "interviewer":
             messages.append({"role": "assistant", "content": entry["content"]})
         else:
-            messages.append({"role": "user", "content": entry["content"]})
+            messages.append({
+                "role": "user",
+                "content": sanitize(entry["content"], _ANSWER_CAP),
+            })
 
     time_remaining = duration - elapsed_minutes
     should_wrap_up = time_remaining <= 3
@@ -121,15 +133,25 @@ async def generate_feedback_report(
 If reading_patterns_detected > 0, this strongly suggests the candidate was reading answers from their screen. Flag this clearly in the eye_tracking_notes field. Be direct — this is a serious integrity concern in a real interview.
 If the numbers are 0 or very low, note positively that the candidate maintained good eye contact."""
 
-    prompt = f"""You are an expert interview coach analyzing a completed mock interview. Generate a comprehensive feedback report.
+    # Sanitize candidate turns before serialising the transcript.
+    safe_transcript = [
+        {**e, "content": sanitize(e["content"], _ANSWER_CAP)}
+        if e.get("role") == "candidate"
+        else e
+        for e in transcript
+    ]
+
+    prompt = f"""{SYSTEM_GUARD}
+
+You are an expert interview coach analyzing a completed mock interview. Generate a comprehensive feedback report.
 
 ## Interview Transcript:
-{json.dumps(transcript)}
+{json.dumps(safe_transcript)}
 
 ## Context:
-- Resume: {_cap(resume_text, 500)}
-- JD: {_cap(jd_text, 500)}
-- Topics covered: {_cap(topics, 500)}
+- Resume: {wrap("resume", sanitize(resume_text, 500))}
+- JD: {wrap("job_description", sanitize(jd_text, 500))}
+- Topics covered: {wrap("topics", sanitize(topics, 500))}
 - Difficulty level: {difficulty}
 {eye_tracking_section}
 
