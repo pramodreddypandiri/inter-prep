@@ -14,6 +14,7 @@ Elevator pitch evaluation criteria (research-based):
 from __future__ import annotations
 
 from app.services.ai_service import _call_claude, _call_claude_json, _cap
+from app.utils.prompt_guard import sanitize, wrap, SYSTEM_GUARD
 
 
 async def generate_pitch_text(
@@ -24,16 +25,18 @@ async def generate_pitch_text(
 ) -> str:
     """Generate a 45-60 second elevator pitch tailored to the role and candidate."""
 
-    company_section = f"## Target Company:\n{_cap(company_name, 200)}\n\n" if company_name.strip() else ""
-    strengths_section = f"## Key Strengths to Highlight:\n{_cap(key_strengths, 2000)}\n\n" if key_strengths.strip() else ""
+    company_section = f"## Target Company:\n{wrap('company', sanitize(company_name, 200))}\n\n" if company_name.strip() else ""
+    strengths_section = f"## Key Strengths to Highlight:\n{wrap('strengths', sanitize(key_strengths, 2000))}\n\n" if key_strengths.strip() else ""
 
-    prompt = f"""You are an expert career coach. Write a compelling 45-60 second elevator pitch for a job seeker.
+    prompt = f"""{SYSTEM_GUARD}
+
+You are an expert career coach. Write a compelling 45-60 second elevator pitch for a job seeker.
 
 ## Target Role:
-{_cap(target_role, 200)}
+{wrap("target_role", sanitize(target_role, 200))}
 
 {company_section}## Resume / Background:
-{_cap(resume_text) if resume_text.strip() else "No resume provided — write a generic but strong pitch structure."}
+{wrap("resume", sanitize(resume_text)) if resume_text.strip() else "No resume provided — write a generic but strong pitch structure."}
 
 {strengths_section}## Elevator Pitch Requirements:
 - **Duration**: Designed to be spoken in 45-60 seconds (~120-150 words)
@@ -76,19 +79,22 @@ async def analyze_pitch_recording(
             timing_comment = f"The candidate went {over} seconds over the 60-second limit ({duration_seconds}s total). Penalize delivery."
 
     company_ctx = f" at {company_name}" if company_name.strip() else ""
+    # pitch_text is AI-generated (trusted); transcript is live speech (user-controlled).
     pitch_ref = f"\n\n## Prepared Pitch Text (what they planned to say):\n{_cap(pitch_text, 5000)}" if pitch_text.strip() else ""
 
-    prompt = f"""You are an expert career coach evaluating an elevator pitch recording.
+    prompt = f"""{SYSTEM_GUARD}
+
+You are an expert career coach evaluating an elevator pitch recording.
 
 ## Target Role:
-{_cap(target_role, 200)}{company_ctx}
+{wrap("target_role", sanitize(target_role, 200))}{company_ctx}
 
 ## Candidate Resume / Background:
-{_cap(resume_text, 3000) if resume_text.strip() else "Not provided."}
+{wrap("resume", sanitize(resume_text, 3000)) if resume_text.strip() else "Not provided."}
 {pitch_ref}
 
 ## Spoken Transcript (what they actually said):
-{_cap(transcript, 5000) if transcript.strip() else "No transcript available — evaluate based on prepared pitch text only."}
+{wrap("spoken_transcript", sanitize(transcript, 5000)) if transcript.strip() else "No transcript available — evaluate based on prepared pitch text only."}
 
 ## Timing:
 {timing_comment if timing_comment else "Duration not recorded."}
