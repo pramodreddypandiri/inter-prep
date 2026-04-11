@@ -108,6 +108,7 @@ backend/app/
 | `POST` | `/api/sessions` | Create session |
 | `GET` | `/api/sessions?user_id=` | List user sessions |
 | `GET` | `/api/sessions/{id}` | Get session |
+| `PATCH` | `/api/sessions/{id}` | Update session (partial: name, company, JD, round, resume) |
 | `DELETE` | `/api/sessions/{id}` | Delete session |
 | `POST` | `/api/sessions/{id}/prep-sources` | Generate AI prep sources |
 | `GET` | `/api/sessions/{id}/prep-sources` | Get prep sources |

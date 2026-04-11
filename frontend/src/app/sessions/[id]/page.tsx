@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { Session } from "@/types";
 import Navbar from "@/components/Navbar";
+import EditSessionModal from "@/components/EditSessionModal";
 import Link from "next/link";
 import {
   BookOpen,
@@ -15,6 +16,7 @@ import {
   ArrowLeft,
   ChevronDown,
   ChevronUp,
+  Pencil,
 } from "lucide-react";
 
 export default function SessionDetailPage() {
@@ -24,6 +26,7 @@ export default function SessionDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [jdExpanded, setJdExpanded] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -82,11 +85,18 @@ export default function SessionDetailPage() {
               {session.company_name}
             </span>
             <h1
-              className="text-2xl md:text-3xl font-extrabold leading-tight"
+              className="text-2xl md:text-3xl font-extrabold leading-tight flex-1"
               style={{ fontFamily: "'Syne', sans-serif" }}
             >
               {session.name}
             </h1>
+            <button
+              onClick={() => setEditOpen(true)}
+              className="btn-ghost !py-2 !px-3 !text-xs shrink-0"
+            >
+              <Pencil size={13} />
+              Edit Session
+            </button>
           </div>
         </div>
 
@@ -175,6 +185,17 @@ export default function SessionDetailPage() {
           </Link>
         </div>
       </main>
+
+      {editOpen && (
+        <EditSessionModal
+          session={session}
+          onClose={() => setEditOpen(false)}
+          onSaved={(updated) => {
+            setSession(updated);
+            setEditOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }

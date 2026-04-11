@@ -13,6 +13,7 @@ from pydantic import ValidationError
 
 from app.models.schemas import (
     SessionCreate,
+    SessionUpdate,
     SessionResponse,
     PrepSourceContent,
     PrepSourceResponse,
@@ -101,6 +102,67 @@ class TestSessionCreateSchema:
             round_description="x" * 5000,
         )
         assert len(session.name) == 200
+
+
+# ── SessionUpdate ───────────────────────────────────────────────────
+
+class TestSessionUpdateSchema:
+    def test_all_fields_optional(self):
+        update = SessionUpdate()
+        assert update.model_dump(exclude_unset=True) == {}
+
+    def test_partial_update_only_includes_set_fields(self):
+        update = SessionUpdate(name="New name")
+        assert update.model_dump(exclude_unset=True) == {"name": "New name"}
+
+    def test_multiple_fields(self):
+        update = SessionUpdate(
+            name="New name",
+            jd_text="Updated JD",
+            resume_text="Updated resume",
+        )
+        dumped = update.model_dump(exclude_unset=True)
+        assert dumped == {
+            "name": "New name",
+            "jd_text": "Updated JD",
+            "resume_text": "Updated resume",
+        }
+
+    def test_name_max_length(self):
+        with pytest.raises(ValidationError):
+            SessionUpdate(name="x" * 201)
+
+    def test_company_name_max_length(self):
+        with pytest.raises(ValidationError):
+            SessionUpdate(company_name="x" * 201)
+
+    def test_jd_text_max_length(self):
+        with pytest.raises(ValidationError):
+            SessionUpdate(jd_text="x" * 50001)
+
+    def test_resume_text_max_length(self):
+        with pytest.raises(ValidationError):
+            SessionUpdate(resume_text="x" * 50001)
+
+    def test_round_description_max_length(self):
+        with pytest.raises(ValidationError):
+            SessionUpdate(round_description="x" * 5001)
+
+    def test_at_max_length_boundaries(self):
+        update = SessionUpdate(
+            name="x" * 200,
+            company_name="x" * 200,
+            jd_text="x" * 50000,
+            resume_text="x" * 50000,
+            round_description="x" * 5000,
+        )
+        assert len(update.name) == 200
+
+    def test_unset_fields_excluded_from_dump(self):
+        """exclude_unset is how the router distinguishes 'omitted' from 'set to None'."""
+        update = SessionUpdate(name="foo")
+        assert "company_name" not in update.model_dump(exclude_unset=True)
+        assert "jd_text" not in update.model_dump(exclude_unset=True)
 
 
 # ── SessionResponse ─────────────────────────────────────────────────

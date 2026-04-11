@@ -1,6 +1,8 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, HTTPException, Depends
 from app.database import get_supabase
-from app.models.schemas import SessionCreate, SessionResponse
+from app.models.schemas import SessionCreate, SessionUpdate, SessionResponse
 from app.auth import get_current_user
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
@@ -55,6 +57,35 @@ async def get_session(session_id: str, user_id: str = Depends(get_current_user))
         raise HTTPException(status_code=403, detail="Not authorized to access this session")
 
     return result.data
+
+
+@router.patch("/{session_id}", response_model=SessionResponse)
+async def update_session(
+    session_id: str,
+    updates: SessionUpdate,
+    user_id: str = Depends(get_current_user),
+):
+    db = get_supabase()
+
+    existing = db.table("sessions").select("user_id").eq("id", session_id).single().execute()
+    if not existing.data:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if existing.data["user_id"] != user_id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this session")
+
+    payload = updates.model_dump(exclude_unset=True)
+    if not payload:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    # Stamp updated_at explicitly so the stale-prep comparison on the frontend
+    # works regardless of whether the DB trigger is present.
+    payload["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+    result = db.table("sessions").update(payload).eq("id", session_id).execute()
+    if not result.data:
+        raise HTTPException(status_code=500, detail="Failed to update session")
+
+    return result.data[0]
 
 
 @router.delete("/{session_id}")

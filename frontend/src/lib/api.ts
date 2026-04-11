@@ -67,6 +67,21 @@ export const api = {
   getSession: (sessionId: string) =>
     fetchAPI(`/api/sessions/${sessionId}`),
 
+  updateSession: (
+    sessionId: string,
+    data: Partial<{
+      name: string;
+      company_name: string;
+      jd_text: string;
+      resume_text: string;
+      round_description: string;
+    }>
+  ) =>
+    fetchAPI(`/api/sessions/${sessionId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
   deleteSession: (sessionId: string) =>
     fetchAPI(`/api/sessions/${sessionId}`, { method: "DELETE" }),
 

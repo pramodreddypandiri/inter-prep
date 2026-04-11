@@ -4,6 +4,29 @@ All notable changes to InterviewAce are recorded here.
 
 ---
 
+## [Unreleased] — 2026-04-11
+
+### Added — Editable Sessions
+
+Users can now edit an existing session after creation: session name, company, job description, round description, and resume (via re-upload).
+
+**Frontend:**
+- New `EditSessionModal` component ([frontend/src/components/EditSessionModal.tsx](frontend/src/components/EditSessionModal.tsx)) — controlled form seeded from the current session, resume re-upload reuses `api.uploadResume` to parse the new file into `resume_text` before saving.
+- Session detail page ([frontend/src/app/sessions/[id]/page.tsx](frontend/src/app/sessions/[id]/page.tsx)) gained an "Edit Session" button in the header that opens the modal and applies the returned session on save.
+- Prepare page ([frontend/src/app/sessions/[id]/prepare/page.tsx](frontend/src/app/sessions/[id]/prepare/page.tsx)) now loads the session alongside prep sources and shows a "Session inputs changed" warning banner when `session.updated_at > prep_source.generated_at`, with a one-click Regenerate All action.
+
+**Backend:**
+- New `PATCH /api/sessions/{session_id}` route ([backend/app/routers/sessions.py](backend/app/routers/sessions.py)) that accepts a partial `SessionUpdate` payload, verifies ownership, and applies only provided fields. The router explicitly stamps `updated_at = now()` in the payload so the stale-prep comparison works regardless of trigger state.
+- New `SessionUpdate` Pydantic schema in [backend/app/models/schemas.py](backend/app/models/schemas.py); `SessionResponse` now surfaces `updated_at`.
+- `Session` frontend type already carried `updated_at`; no type change required.
+
+**Database:**
+- New idempotent migration [supabase/migrations/004_sessions_updated_at.sql](supabase/migrations/004_sessions_updated_at.sql) — adds the `updated_at` column + auto-bump trigger to `sessions` for environments provisioned before migration 001's definition. Also issues `NOTIFY pgrst, 'reload schema'` so PostgREST picks up the new column without a server restart. **Run this migration in any environment whose `sessions` table is missing `updated_at`.**
+
+**Stale-data policy:** Prep sources, quizzes, mock interviews, and derived content are **not** auto-invalidated on edit — the banner warns the user and lets them choose when to regenerate.
+
+---
+
 ## [Unreleased] — 2026-04-03
 
 ### Added — Elevator Pitch Feature

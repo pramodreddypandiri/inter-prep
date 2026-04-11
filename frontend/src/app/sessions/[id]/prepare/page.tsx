@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { api } from "@/lib/api";
-import { PrepSource } from "@/types";
+import { PrepSource, Session } from "@/types";
 import Navbar from "@/components/Navbar";
 import QuizConfig from "@/components/quiz/QuizConfig";
 import Link from "next/link";
@@ -23,6 +23,7 @@ import {
   Route,
   LinkIcon,
   Sparkles,
+  AlertTriangle,
 } from "lucide-react";
 
 type MainTab = "materials" | "quiz";
@@ -52,6 +53,7 @@ export default function PreparePage() {
   const [mainTab, setMainTab] = useState<MainTab>("materials");
   const [activeSection, setActiveSection] = useState("company_snapshot");
   const [prepSource, setPrepSource] = useState<PrepSource | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [quizzes, setQuizzes] = useState<QuizSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -62,10 +64,12 @@ export default function PreparePage() {
   useEffect(() => {
     async function load() {
       try {
-        const [prepData, quizData] = await Promise.all([
+        const [sessionData, prepData, quizData] = await Promise.all([
+          api.getSession(sessionId).catch(() => null),
           api.getPrepSources(sessionId).catch(() => null),
           api.listQuizzes(sessionId).catch(() => []),
         ]);
+        setSession(sessionData);
         setPrepSource(prepData);
         setQuizzes(quizData);
       } catch (err) {
@@ -76,6 +80,11 @@ export default function PreparePage() {
     }
     load();
   }, [sessionId]);
+
+  const isPrepStale =
+    !!prepSource &&
+    !!session?.updated_at &&
+    new Date(session.updated_at).getTime() > new Date(prepSource.generated_at).getTime();
 
   const handleGenerateAll = async () => {
     setGenerating(true);
@@ -179,6 +188,30 @@ export default function PreparePage() {
         {/* PREP MATERIALS TAB */}
         {mainTab === "materials" && (
           <>
+            {isPrepStale && (
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-[var(--warning)]/10 border border-[var(--warning)]/30 animate-fade-in-scale">
+                <AlertTriangle size={18} className="text-[var(--warning)] shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-[var(--foreground)]">
+                    Session inputs changed
+                  </p>
+                  <p className="text-xs text-[var(--muted)] mt-0.5">
+                    Your prep materials were generated before the latest edits and may be out of date.
+                  </p>
+                </div>
+                <button
+                  onClick={handleGenerateAll}
+                  disabled={generating}
+                  className="btn-shine btn-primary !py-2 !px-3 !text-xs shrink-0"
+                >
+                  {generating ? (
+                    <><Loader2 size={12} className="animate-spin" /> Regenerating...</>
+                  ) : (
+                    <><RefreshCw size={12} /> Regenerate All</>
+                  )}
+                </button>
+              </div>
+            )}
             {prepSource ? (
               <div className="space-y-5 animate-fade-in-up">
                 {/* Section sub-tabs */}

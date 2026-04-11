@@ -10,6 +10,14 @@ class SessionCreate(BaseModel):
     round_description: str = Field(..., max_length=5_000)
 
 
+class SessionUpdate(BaseModel):
+    name: Optional[str] = Field(None, max_length=200)
+    company_name: Optional[str] = Field(None, max_length=200)
+    jd_text: Optional[str] = Field(None, max_length=50_000)
+    resume_text: Optional[str] = Field(None, max_length=50_000)
+    round_description: Optional[str] = Field(None, max_length=5_000)
+
+
 class SessionResponse(BaseModel):
     id: str
     user_id: str
@@ -19,6 +27,7 @@ class SessionResponse(BaseModel):
     resume_text: str
     round_description: str
     created_at: str
+    updated_at: Optional[str] = None
 
 
 class PrepSourceContent(BaseModel):
