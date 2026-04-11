@@ -27,8 +27,30 @@
   --surface-2: #f4faf7;
 }
 
+/* Manual dark mode (JS-controlled via html.dark class) */
+html.dark {
+  --background: #090f0c;
+  --foreground: #e8f0ec;
+  --primary: #10b981;
+  --primary-hover: #34d399;
+  --primary-glow: rgba(16, 185, 129, 0.10);
+  --accent: #10b981;
+  --accent-glow: rgba(16, 185, 129, 0.08);
+  --card: #0f1a15;
+  --card-border: #1a3028;
+  --card-hover: #152620;
+  --muted: #7a9b8c;
+  --danger: #fb3b5e;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --warning-glow: rgba(251, 191, 36, 0.10);
+  --surface: #0c1510;
+  --surface-2: #0f1a14;
+}
+
+/* OS dark mode fallback (when no manual class is set) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  html:not(.light) {
     --background: #090f0c;
     --foreground: #e8f0ec;
     --primary: #10b981;
@@ -223,13 +245,22 @@ h1, h2, h3, h4 {
   -webkit-backdrop-filter: blur(16px);
 }
 
+/* Light mode glass — manual override */
+html.light .glass {
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+html.light .orb-primary { opacity: 0.12; }
+html.light .orb-accent  { opacity: 0.08; }
+
+/* Light mode glass — OS preference fallback */
 @media (prefers-color-scheme: light) {
-  .glass {
+  html:not(.dark) .glass {
     background: color-mix(in srgb, var(--card) 88%, transparent);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   }
-  .orb-primary { opacity: 0.12; }
-  .orb-accent  { opacity: 0.08; }
+  html:not(.dark) .orb-primary { opacity: 0.12; }
+  html:not(.dark) .orb-accent  { opacity: 0.08; }
 }
 
 /* ---- Button Shine Effect ---- */
